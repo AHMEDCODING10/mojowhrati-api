@@ -8,10 +8,17 @@ use App\Models\Merchant;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Services\ImgbbService;
 
 class MerchantController extends Controller
 {
     use ApiResponse;
+    protected $imgbbService;
+
+    public function __construct(ImgbbService $imgbbService)
+    {
+        $this->imgbbService = $imgbbService;
+    }
 
     public function index()
     {
@@ -57,18 +64,12 @@ class MerchantController extends Controller
 
         // Handle logo upload
         if ($request->hasFile('logo')) {
-            if ($merchant->logo) {
-                Storage::disk('public')->delete($merchant->logo);
-            }
-            $merchant->logo = $request->file('logo')->store('merchants/logos', 'public');
+            $merchant->logo = $this->imgbbService->upload($request->file('logo'));
         }
 
         // Handle banner upload
         if ($request->hasFile('banner')) {
-            if ($merchant->banner) {
-                Storage::disk('public')->delete($merchant->banner);
-            }
-            $merchant->banner = $request->file('banner')->store('merchants/banners', 'public');
+            $merchant->banner = $this->imgbbService->upload($request->file('banner'));
         }
 
         // Update text fields

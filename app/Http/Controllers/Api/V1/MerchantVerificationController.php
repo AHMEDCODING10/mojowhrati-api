@@ -6,10 +6,17 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use App\Services\ImgbbService;
 
 class MerchantVerificationController extends Controller
 {
     use \App\Traits\ApiResponse;
+    protected $imgbbService;
+
+    public function __construct(ImgbbService $imgbbService)
+    {
+        $this->imgbbService = $imgbbService;
+    }
 
     public function upload(Request $request)
     {
@@ -37,7 +44,7 @@ class MerchantVerificationController extends Controller
         }
 
         // Upload File
-        $path = $request->file('document')->store('verification', 'public');
+        $path = $this->imgbbService->upload($request->file('document'));
 
         // Use the profile (now guaranteed to exist)
         $documents = $merchant->documents ?? [];

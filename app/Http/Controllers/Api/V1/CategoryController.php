@@ -7,10 +7,17 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Traits\ApiResponse;
+use App\Services\ImgbbService;
 
 class CategoryController extends Controller
 {
     use ApiResponse;
+    protected $imgbbService;
+
+    public function __construct(ImgbbService $imgbbService)
+    {
+        $this->imgbbService = $imgbbService;
+    }
 
     public function index()
     {
@@ -34,7 +41,7 @@ class CategoryController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('categories', 'public');
+            $imagePath = $this->imgbbService->upload($request->file('image'));
         }
 
         $category = Category::create([

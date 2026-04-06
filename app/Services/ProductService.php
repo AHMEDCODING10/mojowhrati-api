@@ -6,9 +6,17 @@ use App\Models\Product;
 use Illuminate\Support\Str;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use App\Services\ImgbbService;
 
 class ProductService
 {
+    protected $imgbbService;
+
+    public function __construct(ImgbbService $imgbbService)
+    {
+        $this->imgbbService = $imgbbService;
+    }
+
     public function getAllProducts(array $filters = [])
     {
         $query = Product::with(['merchant.user', 'category', 'material', 'images', 'primaryImage']);
@@ -143,8 +151,8 @@ class ProductService
         // Handle images if present
         if (isset($data['images']) && is_array($data['images'])) {
             foreach ($data['images'] as $index => $image) {
-                if ($image instanceof UploadedFile) {
-                    $path = $image->store('products', 'public');
+                $path = $this->imgbbService->upload($image);
+                if ($path) {
                     $product->images()->create([
                         'image_url' => $path,
                         'is_primary' => $index === 0,
@@ -235,8 +243,8 @@ class ProductService
             $isFirstImage = ($currentMaxOrder === -1);
             
             foreach ($data['images'] as $index => $image) {
-                if ($image instanceof UploadedFile) {
-                    $path = $image->store('products', 'public');
+                $path = $this->imgbbService->upload($image);
+                if ($path) {
                     $product->images()->create([
                         'image_url' => $path,
                         'is_primary' => $isFirstImage && $index === 0,

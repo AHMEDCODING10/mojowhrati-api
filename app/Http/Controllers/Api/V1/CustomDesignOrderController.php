@@ -7,11 +7,18 @@ use Illuminate\Http\Request;
 
 use App\Models\CustomDesignOrder;
 use App\Models\Merchant;
+use App\Services\ImgbbService;
 use Illuminate\Support\Facades\Validator;
 use App\Events\NewNotificationEvent;
 
 class CustomDesignOrderController extends Controller
 {
+    protected $imgbbService;
+
+    public function __construct(ImgbbService $imgbbService)
+    {
+        $this->imgbbService = $imgbbService;
+    }
     public function index(Request $request)
     {
         $user = $request->user();
@@ -38,7 +45,7 @@ class CustomDesignOrderController extends Controller
             'purity'      => 'nullable|string',
             'weight'      => 'nullable|numeric',
             'merchant_id' => 'required|exists:merchants,id',
-            'image'       => 'nullable|image|max:5120',
+            'reference_image' => 'nullable|image|max:5120',
         ]);
 
         if ($validator->fails()) {
@@ -49,8 +56,8 @@ class CustomDesignOrderController extends Controller
         $data['user_id'] = $request->user()->id;
         $data['status']  = 'pending';
 
-        if ($request->hasFile('image')) {
-            $data['image_path'] = $request->file('image')->store('custom_designs', 'public');
+        if ($request->hasFile('reference_image')) {
+            $data['image_path'] = $this->imgbbService->upload($request->file('reference_image'));
         }
 
         $order = CustomDesignOrder::create($data);
