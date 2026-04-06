@@ -8,6 +8,8 @@ use App\Observers\ProductObserver;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use App\Models\Booking;
+use App\Models\CustomDesignOrder;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -33,9 +35,9 @@ class AppServiceProvider extends ServiceProvider
 
         // Core Model Real-Time Synchronization Events
         $modelsToSync = [
-            \App\Models\Product::class => 'product',
-            \App\Models\Booking::class => 'booking',
-            \App\Models\CustomDesignOrder::class => 'custom_design',
+            Product::class => 'product',
+            Booking::class => 'booking',
+            CustomDesignOrder::class => 'custom_design',
         ];
 
         foreach ($modelsToSync as $modelClass => $modelName) {
