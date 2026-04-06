@@ -105,5 +105,13 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
         Route::delete('/categories/all', [CategoryController::class, 'deleteAll']);
         Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
     });
+    Route::get('/test-notify', function () {
+        event(new \App\Events\GlobalNotificationEvent([
+            'title' => 'اختبار إشعارات مجوهراتي',
+            'body' => 'إذا رأيت هذا، فالسيرفر العالمي متصل بنجاح 🚀',
+            'type' => 'test'
+        ]));
+        return response()->json(['message' => 'Notification sent!']);
+    });
 });
 
