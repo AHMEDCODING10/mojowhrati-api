@@ -26,8 +26,8 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN composer install --no-dev --optimize-autoloader
 
-# تثبيت Node.js و NPM لبناء ملفات Vite
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+# تثبيت Node.js و NPM لبناء ملفات Vite (النسخة 22 مطلوبة لـ Vite 7)
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
     apt-get install -y nodejs
 
 # بناء ملفات الواجهة
