@@ -16,9 +16,9 @@ class GoldPriceController extends Controller
 
     public function index(GoldPriceService $service)
     {
-        // Try to update if data is old (e.g., > 1 hour)
+        // Try to update if data is old (e.g., > 15 minutes)
         $latest = GoldPrice::latest()->first();
-        if (!$latest || $latest->updated_at->diffInHours(now()) >= 1) {
+        if (!$latest || $latest->updated_at->diffInMinutes(now()) >= 15) {
             $service->updatePricesFromApi();
         }
 

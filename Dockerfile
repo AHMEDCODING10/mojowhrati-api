@@ -40,5 +40,24 @@ ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/apache2/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# تشغيل الهجرة وتغيير بورت الأباتشي لبدء السيرفر
-CMD php artisan migrate --force && sed -i "s/VirtualHost \*:80/VirtualHost \*:$PORT/g" /etc/apache2/sites-available/000-default.conf && sed -i "s/Listen 80/Listen $PORT/g" /etc/apache2/ports.conf && apache2-foreground
+# تفعيل مودات Apache اللازمة للـ WebSockets والـ Proxy
+RUN a2enmod proxy proxy_http proxy_wstunnel rewrite
+
+# تهيئة Apache ليعمل كـ Proxy لـ Reverb (للسماح بالبث المباشر على بورت 80/443)
+RUN echo "<VirtualHost *:80>\n\
+    DocumentRoot /var/www/html/public\n\
+    <Directory /var/www/html/public>\n\
+        AllowOverride All\n\
+        Require all granted\n\
+    </Directory>\n\
+    # تمرير حركة مرور WebSockets إلى Reverb
+    ProxyPass /app/ ws://127.0.0.1:8080/app/\n\
+    ProxyPassReverse /app/ ws://127.0.0.1:8080/app/\n\
+</VirtualHost>" > /etc/apache2/sites-available/000-default.conf
+
+# تشغيل الهجرة، تشغيل Reverb في الخلفية، ثم تشغيل Apache
+CMD php artisan migrate --force && \
+    php artisan reverb:start --host=0.0.0.0 --port=8080 & \
+    sed -i "s/Listen 80/Listen $PORT/g" /etc/apache2/ports.conf && \
+    sed -i "s/VirtualHost \*:80/VirtualHost \*:$PORT/g" /etc/apache2/sites-available/000-default.conf && \
+    apache2-foreground
