@@ -1,0 +1,14 @@
+{
+    "validation.required": "هذا الحقل مطلوب.",
+    "validation.email": "يجب أن يكون البريد الإلكتروني صالحاً.",
+    "validation.unique": "هذه القيمة مستخدمة بالفعل.",
+    "validation.min.string": "يجب أن تتكون :attribute من :min أحرف على الأقل.",
+    "validation.confirmed": "تأكيد الحقل غير متطابق.",
+    "validation.image": "يجب أن يكون الملف صورة.",
+    "validation.max.file": "المساحة القصوى للملف :max كيلوبايت.",
+    "The password field must be at least 8 characters.": "يجب أن تكون كلمة المرور 8 أحرف على الأقل.",
+    "The password confirmation does not match.": "تأكيد كلمة المرور غير متطابق.",
+    "The email has already been taken.": "البريد الإلكتروني مستخدم بالفعل.",
+    "The phone field is required.": "رقم الهاتف مطلوب.",
+    "The name field is required.": "الاسم الكامل مطلوب."
+}
