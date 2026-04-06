@@ -21,6 +21,10 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        if (config('app.env') === 'production') {
+            \Illuminate\Support\Facades\URL::forceScheme('https');
+        }
+
         if (file_exists(app_path('Helpers/ImageHelper.php'))) {
             require_once app_path('Helpers/ImageHelper.php');
         }
