@@ -71,7 +71,7 @@
 
 @layer components {
     .luxury-card {
-        @apply bg-white/60 dark:bg-white/5 backdrop-blur-3xl rounded-[32px] border border-white/20 dark:border-white/10 shadow-[0_20px_60px_rgba(0, 0, 0, 0.04)] dark:shadow-[0_20px_60px_rgba(0, 0, 0, 0.4)] transition-all duration-700 overflow-hidden;
+        @apply bg-white/60 dark:bg-white/5 backdrop-blur-3xl rounded-[32px] border border-white/20 dark:border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.04)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.4)] transition-all duration-700 overflow-hidden;
     }
 
     /* Elite Table Systems */
