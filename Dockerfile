@@ -2,7 +2,8 @@
 FROM php:8.2-apache
 
 # تثبيت الإضافات المطلوبة لـ Laravel و MySQL
-RUN apt-get update && apt-get install -is --no-install-recommends \
+# السطر الصحيح
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
@@ -11,7 +12,6 @@ RUN apt-get update && apt-get install -is --no-install-recommends \
     git \
     curl \
     libzip-dev
-
 # تفعيل موديل Rewrite لـ Apache (ضروري لروابط Laravel)
 RUN a2enmod rewrite
 
