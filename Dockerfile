@@ -50,7 +50,14 @@ RUN echo "<VirtualHost *:80>\n\
         AllowOverride All\n\
         Require all granted\n\
     </Directory>\n\
-    # تمرير حركة مرور WebSockets إلى Reverb
+    \n\
+    # تفعيل نظام إعادة الكتابة (RewriteEngine) لمعالجة الـ WebSockets\n\
+    RewriteEngine On\n\
+    RewriteCond %{HTTP:Upgrade} websocket [NC]\n\
+    RewriteCond %{HTTP:Connection} upgrade [NC]\n\
+    RewriteRule ^/app/(.*) ws://127.0.0.1:8080/app/\$1 [P,L]\n\
+    \n\
+    # تمرير حركة مرور WebSockets و HTTP العادية إلى Reverb\n\
     ProxyPass /app/ ws://127.0.0.1:8080/app/\n\
     ProxyPassReverse /app/ ws://127.0.0.1:8080/app/\n\
 </VirtualHost>" > /etc/apache2/sites-available/000-default.conf
