@@ -113,5 +113,22 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
         ]));
         return response()->json(['message' => 'Notification sent!']);
     });
+
+    // Hidden route to trigger gold price update (for Render compatibility)
+    Route::get('/update-gold-prices', function () {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('gold:update');
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Gold prices updated successfully!',
+                'output' => \Illuminate\Support\Facades\Artisan::output()
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    });
 });
 
