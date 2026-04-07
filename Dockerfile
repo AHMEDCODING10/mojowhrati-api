@@ -59,9 +59,16 @@ RUN echo "<VirtualHost *:80>\n\
         Allow from all\n\
     </Proxy>\n\
     \n\
-    # تمرير حركة مرور WebSockets و HTTP العادية إلى مسارات Reverb فقط\n\
-    ProxyPass /app/ ws://127.0.0.1:8080/app/ upgrade=websocket\n\
-    ProxyPassReverse /app/ ws://127.0.0.1:8080/app/\n\
+    # ضمان مرور ترويسات المصافحة (Upgrade & Connection) بشكل إجباري\n\
+    RewriteEngine On\n\
+    RewriteCond %{HTTP:Upgrade} =websocket [NC]\n\
+    RewriteRule /(.*)           ws://127.0.0.1:8080/$1 [P,L]\n\
+    \n\
+    # تعزيز الترويسات يدوياً لضمان عدم ضياعها في البروكسي\n\
+    RequestHeader set Upgrade \"websocket\" env=HTTP_UPGRADE\n\
+    RequestHeader set Connection \"Upgrade\" env=HTTP_UPGRADE\n\
+    \n\
+    # تمرير حركة مرور Reverb API العادية\n\
     ProxyPass /apps/ http://127.0.0.1:8080/apps/\n\
     ProxyPassReverse /apps/ http://127.0.0.1:8080/apps/\n\
     \n\
