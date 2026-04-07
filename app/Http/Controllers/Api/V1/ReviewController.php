@@ -28,8 +28,8 @@ class ReviewController extends Controller
         $formattedReviews = $reviews->map(function ($review) {
             return [
                 'id' => $review->id,
-                'user_name' => $review->user->name,
-                'user_image' => $review->user->profile_image ? asset('storage/' . $review->user->profile_image) : null,
+                'user_name' => $review->user->name ?? 'مستخدم مجوهراتي',
+                'user_image' => ($review->user && $review->user->profile_image) ? image_url($review->user->profile_image) : null,
                 'rating' => $review->rating,
                 'comment' => $review->comment,
                 'created_at' => $review->created_at->toIso8601String(),
@@ -73,7 +73,7 @@ class ReviewController extends Controller
             'data' => [
                 'id' => $review->id,
                 'user_name' => $request->user()->name,
-                'user_image' => $request->user()->profile_image ? asset('storage/' . $request->user()->profile_image) : null,
+                'user_image' => $request->user()->profile_image ? image_url($request->user()->profile_image) : null,
                 'rating' => $review->rating,
                 'comment' => $review->comment,
                 'created_at' => $review->created_at->toIso8601String(),
