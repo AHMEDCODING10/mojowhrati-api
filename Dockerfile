@@ -67,11 +67,9 @@ RUN echo "<VirtualHost *:80>\n\
     RequestHeader set X-Forwarded-Proto \"https\"\n\
 </VirtualHost>" > /etc/apache2/sites-available/000-default.conf
 
-# تشغيل الهجرة، تشغيل Reverb، وتشغيل موظف الإشعارات في الخلفية
-CMD php artisan migrate --force && \
-    php artisan storage:link && \
-    (php artisan reverb:start --host=0.0.0.0 --port=8080 > /dev/null 2>&1 &) && \
-    (php artisan queue:work --tries=3 --timeout=90 > /dev/null 2>&1 &) && \
-    sed -i "s/Listen 80/Listen $PORT/g" /etc/apache2/ports.conf && \
-    sed -i "s/VirtualHost \*:80/VirtualHost \*:$PORT/g" /etc/apache2/sites-available/000-default.conf && \
-    apache2-foreground
+# نسخ سكربت التشغيل ومنحه صلاحية التنفيذ
+COPY start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
+
+# تشغيل السيرفر وكل الخدمات الخلفية عبر السكربت
+CMD ["/usr/local/bin/start.sh"]
