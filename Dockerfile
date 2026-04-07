@@ -58,13 +58,11 @@ RUN echo "<VirtualHost *:80>\n\
     RewriteRule ^/app/(.*) ws://127.0.0.1:8080/app/\$1 [P,L]\n\
     \n\
     # تمرير حركة مرور WebSockets و HTTP العادية إلى Reverb\n\
+    ProxyPreserveHost On\n\
     ProxyPass /app/ ws://127.0.0.1:8080/app/\n\
     ProxyPassReverse /app/ ws://127.0.0.1:8080/app/\n\
     \n\
-    # تمرير الترويسات الضرورية لـ WebSockets\n\
-    RequestHeader set Host %{HTTP_HOST}e\n\
-    RequestHeader set X-Real-IP %{REMOTE_ADDR}e\n\
-    RequestHeader set X-Forwarded-For %{HTTP:X-Forwarded-For}e\n\
+    # تمرير ترويسة البروتوكول لضمان عمل الـ SSL بشكل صحيح\n\
     RequestHeader set X-Forwarded-Proto \"https\"\n\
 </VirtualHost>" > /etc/apache2/sites-available/000-default.conf
 
