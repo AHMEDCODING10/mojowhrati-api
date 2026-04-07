@@ -41,7 +41,7 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-av
 RUN sed -ri -e 's!/var/www/apache2/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
 # تفعيل مودات Apache اللازمة للـ WebSockets والـ Proxy
-RUN a2enmod proxy proxy_http proxy_wstunnel rewrite
+RUN a2enmod proxy proxy_http proxy_wstunnel rewrite headers
 
 # تهيئة Apache ليعمل كـ Proxy لـ Reverb (للسماح بالبث المباشر على بورت 80/443)
 RUN echo "<VirtualHost *:80>\n\
