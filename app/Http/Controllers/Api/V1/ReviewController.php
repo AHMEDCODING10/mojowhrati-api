@@ -64,10 +64,12 @@ class ReviewController extends Controller
             $review = Review::create([
                 'user_id' => $request->user()->id,
                 'reviewable_id' => $request->product_id,
-                'reviewable_type' => Product::class,
+                'reviewable_type' => 'product', // Using explicit morph alias
                 'rating' => (int) $request->rating,
                 'comment' => $request->comment,
                 'status' => 'approved', 
+                'images' => [], // Default empty array for JSON field
+                'admin_notes' => null,
             ]);
         } catch (\Exception $e) {
             \Log::error('Review Submission Error: ' . $e->getMessage());
