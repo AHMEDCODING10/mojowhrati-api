@@ -51,14 +51,22 @@ class ReviewController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        $review = Review::create([
-            'user_id' => $request->user()->id,
-            'reviewable_id' => $request->product_id,
-            'reviewable_type' => Product::class,
-            'rating' => $request->rating,
-            'comment' => $request->comment,
-            'status' => 'approved', // Automatically approved for simplicity in this stage
-        ]);
+        try {
+            $review = Review::create([
+                'user_id' => $request->user()->id,
+                'reviewable_id' => $request->product_id,
+                'reviewable_type' => Product::class,
+                'rating' => (int) $request->rating,
+                'comment' => $request->comment,
+                'status' => 'approved', 
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Review Submission Error: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Failed to submit review',
+                'error' => $e->getMessage()
+            ], 500);
+        }
 
         return response()->json([
             'message' => 'Review submitted successfully',
