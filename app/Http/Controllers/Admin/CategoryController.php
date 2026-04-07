@@ -57,7 +57,7 @@ class CategoryController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('categories', 'public');
+            $imagePath = app(\App\Services\ImgbbService::class)->upload($request->file('image'));
         }
 
         Category::create([
@@ -98,11 +98,11 @@ class CategoryController extends Controller
         ];
 
         if ($request->hasFile('image')) {
-            // Delete old image
-            if ($category->image) {
+            // Delete old image if local
+            if ($category->image && !str_starts_with($category->image, 'http')) {
                 Storage::disk('public')->delete($category->image);
             }
-            $data['image'] = $request->file('image')->store('categories', 'public');
+            $data['image'] = app(\App\Services\ImgbbService::class)->upload($request->file('image'));
         }
 
         $category->update($data);
@@ -112,10 +112,12 @@ class CategoryController extends Controller
 
     public function clear()
     {
-        // Delete all images first
+        // Delete all local images first
         $categories = Category::whereNotNull('image')->get();
         foreach ($categories as $category) {
-            Storage::disk('public')->delete($category->image);
+            if (!str_starts_with($category->image, 'http')) {
+                Storage::disk('public')->delete($category->image);
+            }
         }
 
         // Set all products category_id to null or a default if they refer to these categories
@@ -143,7 +145,7 @@ class CategoryController extends Controller
             return redirect()->back()->with('error', __('لا يمكن حذف هذا القسم لوجود منتجات مرتبطة به. يرجى نقل أو حذف المنتجات أولاً.'));
         }
 
-        if ($category->image) {
+        if ($category->image && !str_starts_with($category->image, 'http')) {
             Storage::disk('public')->delete($category->image);
         }
 

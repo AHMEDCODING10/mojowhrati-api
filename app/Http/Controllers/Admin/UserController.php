@@ -30,8 +30,7 @@ class UserController extends Controller
         $userData['status'] = 'active';
 
         if ($request->hasFile('profile_image')) {
-            $path = $request->file('profile_image')->store('profile_images', 'public');
-            $userData['profile_image'] = $path;
+            $userData['profile_image'] = app(\App\Services\ImgbbService::class)->upload($request->file('profile_image'));
         }
 
         $user = User::create($userData);
@@ -114,8 +113,10 @@ class UserController extends Controller
         }
 
         if ($request->hasFile('profile_image')) {
-            $path = $request->file('profile_image')->store('profile_images', 'public');
-            $userData['profile_image'] = $path;
+            if ($user->profile_image && !str_starts_with($user->profile_image, 'http')) {
+                \Storage::disk('public')->delete($user->profile_image);
+            }
+            $userData['profile_image'] = app(\App\Services\ImgbbService::class)->upload($request->file('profile_image'));
         }
 
         $user->update($userData);
@@ -148,13 +149,10 @@ class UserController extends Controller
         return back()->with('success', $message);
     }
 
-    public function destroy($id)
+    public function destroy(User $user)
     {
-        $user = User::findOrFail($id);
-        
-        // منع حذف الحساب الحالي
         if ($user->id === auth()->id()) {
-            return back()->with('error', 'لا يمكنك حذف حسابك الخاص');
+            return back()->with('error', 'لا يمكنك حذف حسابك الحالي');
         }
 
         try {

@@ -37,7 +37,7 @@ class BannerController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('banners', 'public');
+            $imagePath = app(\App\Services\ImgbbService::class)->upload($request->file('image'));
         }
 
         Banner::create([
@@ -90,11 +90,10 @@ class BannerController extends Controller
         ];
 
         if ($request->hasFile('image')) {
-            // Delete old image if it exists
-            if ($banner->image_url && \Storage::disk('public')->exists($banner->image_url)) {
-                \Storage::disk('public')->delete($banner->image_url);
+            if ($banner->image_url && !str_starts_with($banner->image_url, 'http')) {
+                Storage::disk('public')->delete($banner->image_url);
             }
-            $data['image_url'] = $request->file('image')->store('banners', 'public');
+            $data['image_url'] = app(\App\Services\ImgbbService::class)->upload($request->file('image'));
         }
 
         $banner->update($data);
@@ -104,9 +103,10 @@ class BannerController extends Controller
 
     public function destroy(Banner $banner)
     {
-        if ($banner->image_url) {
+        if ($banner->image_url && !str_starts_with($banner->image_url, 'http')) {
             Storage::disk('public')->delete($banner->image_url);
         }
+
         $banner->delete();
 
         return redirect()->route('banners.index')->with('success', 'تم حذف البنر بنجاح');
