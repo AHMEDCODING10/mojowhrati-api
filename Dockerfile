@@ -51,18 +51,19 @@ RUN echo "<VirtualHost *:80>\n\
         Require all granted\n\
     </Directory>\n\
     \n\
-    # تفعيل نظام إعادة الكتابة (RewriteEngine) لمعالجة الـ WebSockets\n\
-    RewriteEngine On\n\
-    RewriteCond %{HTTP:Upgrade} websocket [NC]\n\
-    RewriteCond %{HTTP:Connection} upgrade [NC]\n\
-    RewriteRule ^/app/(.*) ws://127.0.0.1:8080/app/\$1 [P,L]\n\
-    \n\
-    # تمرير حركة مرور WebSockets و HTTP العادية إلى Reverb\n\
+    # تفعيل نظام البروكسي لـ WebSockets\n\
     ProxyPreserveHost On\n\
+    ProxyRequests Off\n\
+    <Proxy *>\n\
+        Order deny,allow\n\
+        Allow from all\n\
+    </Proxy>\n\
+    \n\
+    # تمرير حركة مرور WebSockets و HTTP العادية إلى Reverb بشكل مباشر ونظيف\n\
     ProxyPass /app/ ws://127.0.0.1:8080/app/\n\
     ProxyPassReverse /app/ ws://127.0.0.1:8080/app/\n\
     \n\
-    # تمرير ترويسة البروتوكول لضمان عمل الـ SSL بشكل صحيح\n\
+    # تفعيل ترويسة البروتوكول لضمان عمل الـ SSL بشكل صحيح\n\
     RequestHeader set X-Forwarded-Proto \"https\"\n\
 </VirtualHost>" > /etc/apache2/sites-available/000-default.conf
 

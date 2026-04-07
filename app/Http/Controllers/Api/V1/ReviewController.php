@@ -25,18 +25,27 @@ class ReviewController extends Controller
             ->latest()
             ->get();
 
-        $formattedReviews = $reviews->map(function ($review) {
-            return [
-                'id' => $review->id,
-                'user_name' => $review->user->name ?? 'مستخدم مجوهراتي',
-                'user_image' => ($review->user && $review->user->profile_image) ? image_url($review->user->profile_image) : null,
-                'rating' => $review->rating,
-                'comment' => $review->comment,
-                'created_at' => $review->created_at->toIso8601String(),
-            ];
-        });
+        try {
+            $formattedReviews = $reviews->map(function ($review) {
+                return [
+                    'id' => $review->id,
+                    'user_name' => $review->user->name ?? 'مستخدم مجوهراتي',
+                    'user_image' => ($review->user && $review->user->profile_image) ? image_url($review->user->profile_image) : null,
+                    'rating' => $review->rating,
+                    'comment' => $review->comment,
+                    'created_at' => $review->created_at->toIso8601String(),
+                ];
+            });
 
-        return response()->json(['data' => $formattedReviews]);
+            return response()->json(['data' => $formattedReviews]);
+        } catch (\Exception $e) {
+            \Log::error('Review Fetch Error: ' . $e->getMessage());
+            \Log::error($e->getTraceAsString());
+            return response()->json([
+                'message' => 'Failed to fetch reviews',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function store(Request $request)
@@ -62,6 +71,7 @@ class ReviewController extends Controller
             ]);
         } catch (\Exception $e) {
             \Log::error('Review Submission Error: ' . $e->getMessage());
+            \Log::error($e->getTraceAsString());
             return response()->json([
                 'message' => 'Failed to submit review',
                 'error' => $e->getMessage()
