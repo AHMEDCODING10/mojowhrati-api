@@ -51,21 +51,17 @@ RUN echo "<VirtualHost *:80>\n\
         Require all granted\n\
     </Directory>\n\
     \n\
-    # إعداد البروكسي والـ WebSockets بشكل عدواني لمنع الـ Redirect\n\
-    RewriteEngine On\n\
+    # تفعيل نظام البروكسي لـ WebSockets مع الحفاظ على اسم المضيف (Host Header)\n\
+    # هذا يمنع السيرفر من عمل Redirect لاسم مضيف مختلف (127.0.0.1)\n\
+    ProxyPreserveHost On\n\
+    ProxyRequests Off\n\
     \n\
-    # 1. تمرير طلبات الـ WebSocket فوراً (Match /app path)\n\
-    RewriteCond %{HTTP:Upgrade} =websocket [NC]\n\
-    RewriteRule ^/app/(.*) ws://127.0.0.1:8080/app/$1 [P,L]\n\
+    # ممرات Reverb الرسمية لـ WebSockets و HTTP\n\
+    ProxyPass /app ws://127.0.0.1:8080/app upgrade=websocket\n\
+    ProxyPassReverse /app ws://127.0.0.1:8080/app\n\
     \n\
-    # 2. تمرير حركة مرور Reverb API العادية\n\
     ProxyPass /apps http://127.0.0.1:8080/apps\n\
     ProxyPassReverse /apps http://127.0.0.1:8080/apps\n\
-\n\
-    # 3. ضمان ثبات الترويسات المطلوبة للمصافحة لمسار الويب سوكيت فقط\n\
-    SetEnvIf Request_URI \"^/app/\" IS_REVERB\n\
-    Header set Upgrade \"websocket\" env=IS_REVERB\n\
-    Header set Connection \"Upgrade\" env=IS_REVERB\n\
     \n\
     # تفعيل ترويسة البروتوكول لتعريف لارافل بالـ SSL الخارجي\n\
     RequestHeader set X-Forwarded-Proto \"https\"\n\
