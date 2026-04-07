@@ -5,19 +5,20 @@ namespace App\Services;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Str;
 
 class ImgbbService
 {
-    protected $apiKey;
+    protected $privateKey;
 
     public function __construct()
     {
-        // Use the API key provided by the user, fallback to env
-        $this->apiKey = env('IMGBB_API_KEY', 'cd13fd374f6b35985fe5bc679a588c7b');
+        // Use the ImageKit Private Key provided by the user
+        $this->privateKey = env('IMAGEKIT_PRIVATE_KEY', 'private_6WPi++CglWrqCuxY4Mc07Nk8HsM=');
     }
 
     /**
-     * Upload an image to Imgbb and return the direct URL.
+     * Upload an image to ImageKit (replacing ImgBB) and return the direct URL.
      * 
      * @param UploadedFile|string $image
      * @return string|null
@@ -32,22 +33,28 @@ class ImgbbService
                 ? file_get_contents($image->getRealPath()) 
                 : (file_exists($image) ? file_get_contents($image) : $image);
 
-            $response = Http::asMultipart()
-                ->post('https://api.imgbb.com/1/upload', [
-                    'key' => $this->apiKey,
-                    'image' => base64_encode($imageData),
+            // Generate a random filename for ImageKit
+            $fileName = $image instanceof UploadedFile
+                ? time() . '_' . Str::random(5) . '.' . $image->getClientOriginalExtension()
+                : time() . '_' . Str::random(5) . '.jpg';
+
+            $response = Http::withBasicAuth($this->privateKey, '')
+                ->asMultipart()
+                ->post('https://upload.imagekit.io/api/v1/files/upload', [
+                    'file' => base64_encode($imageData),
+                    'fileName' => $fileName,
                 ]);
 
             if ($response->successful()) {
-                $url = $response->json('data.url');
-                Log::info("Imgbb Upload Success: $url");
+                $url = $response->json('url');
+                Log::info("ImageKit Upload Success: $url");
                 return $url;
             }
 
-            Log::error('Imgbb upload failed: ' . $response->body());
+            Log::error('ImageKit upload failed: ' . $response->body());
             return null;
         } catch (\Exception $e) {
-            Log::error('Imgbb upload exception: ' . $e->getMessage());
+            Log::error('ImageKit upload exception: ' . $e->getMessage());
             return null;
         }
     }
