@@ -7,19 +7,21 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    // ✅ يجب أن يشمل broadcasting/auth لكي يعمل توثيق القنوات الخاصة
+    'paths' => ['api/*', 'sanctum/csrf-cookie', 'broadcasting/auth'],
 
-    'allowed_methods' => ['*'], // Allow all methods (GET, POST, etc.)
+    'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'], // Allow all origins
+    'allowed_origins' => ['*'],
 
     'allowed_origins_patterns' => [],
 
-    'allowed_headers' => ['*'], // Allow all headers
+    'allowed_headers' => ['*'],
 
     'exposed_headers' => [],
 
     'max_age' => 0,
 
-    'supports_credentials' => false,
+    // ✅ مطلوب لإرسال Authorization Bearer token مع طلبات التوثيق
+    'supports_credentials' => true,
 ];
