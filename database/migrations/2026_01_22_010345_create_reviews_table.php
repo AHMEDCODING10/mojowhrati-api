@@ -11,17 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('reviews', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->morphs('reviewable'); // Adds reviewable_id and reviewable_type
-            $table->unsignedTinyInteger('rating');
-            $table->text('comment')->nullable();
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
-            $table->json('images')->nullable();
-            $table->text('admin_notes')->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('reviews')) {
+            Schema::create('reviews', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('user_id')->constrained()->onDelete('cascade');
+                $table->string('reviewable_type');
+                $table->unsignedBigInteger('reviewable_id');
+                $table->unsignedTinyInteger('rating');
+                $table->text('comment')->nullable();
+                $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+                $table->json('images')->nullable();
+                $table->text('admin_notes')->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

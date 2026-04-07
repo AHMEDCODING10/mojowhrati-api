@@ -131,22 +131,5 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
         }
     });
 
-    // Hidden route to force trigger migrations (for missing reviews table)
-    Route::get('/sys/migrate', function () {
-        try {
-            \Illuminate\Support\Facades\DB::table('migrations')->where('migration', 'like', '%create_reviews_table%')->delete();
-            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Migrations ran successfully!',
-                'output' => \Illuminate\Support\Facades\Artisan::output()
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
-        }
-    });
 });
 
