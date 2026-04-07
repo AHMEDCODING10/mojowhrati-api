@@ -290,24 +290,38 @@
     <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.16.1/dist/echo.iife.js"></script>
     <script>
         (function () {
+            var reverbKey    = '{{ config('broadcasting.connections.reverb.key', 'z2weyntpqmksubfi6enb') }}';
+            var reverbHost   = '{{ config('broadcasting.connections.reverb.options.host', 'mojowhrati-api.onrender.com') }}';
+            var reverbScheme = '{{ config('broadcasting.connections.reverb.options.scheme', 'https') }}';
+            var forceTLS     = (reverbScheme === 'https');
+            var wsPort       = forceTLS ? 443 : 80;
+
+            if (!reverbKey) {
+                console.warn('[Echo] REVERB_APP_KEY is empty. WebSocket disabled.');
+                return;
+            }
+
             window.Pusher = Pusher;
             window.Echo = new Echo({
-                broadcaster: 'reverb',
-                key: '{{ env('REVERB_APP_KEY') }}',
-                wsHost: '{{ env('REVERB_HOST') }}',
-                wsPort: {{ env('REVERB_PORT', 8080) }},
-                wssPort: {{ env('REVERB_PORT', 8080) }},
-                forceTLS: {{ env('REVERB_SCHEME') == 'https' ? 'true' : 'false' }},
+                broadcaster:       'reverb',
+                key:               reverbKey,
+                wsHost:            reverbHost,
+                wsPort:            wsPort,
+                wssPort:           wsPort,
+                forceTLS:          forceTLS,
                 enabledTransports: ['ws', 'wss'],
             });
 
+            console.log('[Echo] Connecting to Reverb:', reverbHost, '| Key:', reverbKey, '| TLS:', forceTLS);
+
             // Global Notification Badge Listener
             @auth
-                window.Echo.private('App.Models.User.{{ Auth::id() }}')
-                    .listen('.App\\Events\\NewNotificationEvent', (e) => {
-                        console.log('New notification received:', e);
+                // ✅ القناة الصحيحة التي يبثها السيرفر: private-user.{id}
+                window.Echo.private('user.{{ Auth::id() }}')
+                    .listen('.notification.new', function(e) {
+                        console.log('[Echo] Notification received:', e);
 
-                        // Update badge count
+                        // تحديث عدد الإشعارات
                         const badge = document.querySelector('.notification-badge');
                         if (badge) {
                             let current = parseInt(badge.textContent || '0');
@@ -315,7 +329,6 @@
                             badge.classList.remove('hidden');
                             badge.classList.add('animate-bounce');
                         } else {
-                            // Create badge if not exists
                             const bell = document.querySelector('a[href*="notifications"]');
                             if (bell) {
                                 const newBadge = document.createElement('span');
@@ -325,32 +338,26 @@
                             }
                         }
 
-                        // Native Browser Notification (Optional)
+                        // إشعار المتصفح الأصلي
+                        var title   = (e.title || e.payload && e.payload.title) || 'إشعار جديد';
+                        var message = (e.message || e.payload && e.payload.message) || '';
                         if (Notification.permission === "granted") {
-                            new Notification(e.payload.title, { body: e.payload.message });
+                            new Notification(title, { body: message });
                         }
                     });
 
-                // 🟡 Real-time Gold Price Listener
+                // 🟡 تحديث أسعار الذهب لحظياً
                 window.Echo.channel('gold-prices')
-                    .listen('.gold.updated', (e) => {
-                        console.log('Gold prices update received:', e);
+                    .listen('.gold.updated', function(e) {
+                        console.log('[Echo] Gold prices update received:', e);
 
-                        const el24 = document.getElementById('gold-price-24k');
-                        const el21 = document.getElementById('gold-price-21k');
-                        const elCurrency = document.getElementById('usd-egp-rate');
+                        const el24      = document.getElementById('gold-price-24k');
+                        const el21      = document.getElementById('gold-price-21k');
+                        const elCurrency= document.getElementById('usd-egp-rate');
 
-                        if (el24 && e.prices[24]) el24.textContent = parseFloat(e.prices[24]).toFixed(2);
-                        if (el21 && e.prices[21]) el21.textContent = parseFloat(e.prices[21]).toFixed(2);
+                        if (el24 && e.prices && e.prices[24]) el24.textContent = parseFloat(e.prices[24]).toFixed(2);
+                        if (el21 && e.prices && e.prices[21]) el21.textContent = parseFloat(e.prices[21]).toFixed(2);
                         if (elCurrency && e.usd_egp) elCurrency.textContent = parseFloat(e.usd_egp).toFixed(2);
-
-                        // Optional visual feedback
-                        [el24, el21, elCurrency].forEach(el => {
-                            if (el) {
-                                el.classList.add('text-white', 'scale-110');
-                                setTimeout(() => el.classList.remove('text-white', 'scale-110'), 1000);
-                            }
-                        });
                     });
             @endauth
         })();
