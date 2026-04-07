@@ -13,12 +13,15 @@ class ImageController extends Controller
         // Decode the path
         $decodedPath = base64_decode($path);
         
-        // Check if file exists in public storage
-        if (!Storage::disk('public')->exists($decodedPath)) {
-            abort(404, 'Image not found');
+        $disk = Storage::disk('public');
+        $exists = $disk->exists($decodedPath);
+        
+        if (!$exists) {
+            // ✅ الحل الذكي: بدلاً من 404، نعرض صورة افتراضية
+            return response()->redirectTo('https://placehold.co/600x400?text=Image+Not+Found');
         }
         
-        $fullPath = Storage::disk('public')->path($decodedPath);
+        $fullPath = $disk->path($decodedPath);
         
         // Detect the correct MIME type
         $mimeType = mime_content_type($fullPath) ?: 'image/jpeg';
