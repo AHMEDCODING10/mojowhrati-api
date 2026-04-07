@@ -19,7 +19,7 @@ class ReviewController extends Controller
         }
 
         $reviews = Review::where('reviewable_id', $productId)
-            ->where('reviewable_type', Product::class)
+            ->where('reviewable_type', 'product')
             ->where('status', 'approved')
             ->with(['user:id,name,profile_image'])
             ->latest()
