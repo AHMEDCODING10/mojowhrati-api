@@ -18,28 +18,29 @@ class BookingService
 {
     public function createBooking(array $data)
     {
-        return DB::transaction(function () use ($data) {
+        $requestedQuantity = $data['quantity'] ?? 1;
+
+        return DB::transaction(function () use ($data, $requestedQuantity) {
             // Lock the product row for update to prevent concurrent stock checks
             $product = Product::with('merchant.user')
                 ->where('id', $data['product_id'])
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            // For managed stock, we only count 'pending' bookings because 'confirmed' bookings 
-            // have already decremented the stock_quantity in the DB.
-            $pendingBookingsCount = Booking::where('product_id', $product->id)
+            // For managed stock, we count the total quantity of 'pending' bookings
+            $pendingQuantity = Booking::where('product_id', $product->id)
                 ->where('status', 'pending')
-                ->count();
+                ->sum('quantity');
 
             if ($product->manage_stock) {
-                // Compare pending reservations against currently available stock
-                if ($pendingBookingsCount >= $product->stock_quantity) {
+                // Compare (requested + pending) against currently available stock
+                if (($pendingQuantity + $requestedQuantity) > $product->stock_quantity) {
                     throw ValidationException::withMessages([
-                        'product_id' => ['عذراً، هذا المنتج محجوز بالكامل حالياً.'],
+                        'product_id' => ['عذراً، الكمية المطلوبة غير متوفرة حالياً بالكامل.'],
                     ]);
                 }
             } else {
-                // For unmanaged stock (unique items), any active booking (pending or confirmed) blocks it
+                // For unmanaged stock (unique items), any active booking blocks it
                 $activeBookingsCount = Booking::where('product_id', $product->id)
                     ->whereIn('status', ['pending', 'confirmed'])
                     ->count();
@@ -53,12 +54,13 @@ class BookingService
 
             $booking = Booking::create([
                 'product_id'     => $product->id,
+                'quantity'       => $requestedQuantity,
                 'customer_id'    => $data['customer_id'],
                 'merchant_id'    => $product->merchant_id,
                 'status'         => 'pending',
                 'expires_at'     => Carbon::now()->addHours(24),
                 'customer_notes' => $data['customer_notes'] ?? null,
-                'total_price'    => 0,
+                'total_price'    => $product->final_price * $requestedQuantity,
                 'paid_amount'    => 0,
             ]);
 
@@ -70,7 +72,7 @@ class BookingService
                 // 🔴 Real-time push via Reverb
                 broadcast(new NewNotificationEvent($merchantUser->id, [
                     'title'      => 'حجز جديد 🛍️',
-                    'message'    => "منتج \"{$product->title}\" تم حجزه",
+                    'message'    => "منتج \"{$product->title}\" تم حجز عدد ({$requestedQuantity}) قطعة منه",
                     'type'       => 'booking_new',
                     'booking_id' => $booking->id,
                 ]));
@@ -89,7 +91,7 @@ class BookingService
                 $booking->confirmed_at = Carbon::now();
                 if ($booking->product && $booking->product->manage_stock) {
                     $productService = app(\App\Services\ProductService::class);
-                    $productService->deductStock($booking->product, 1);
+                    $productService->deductStock($booking->product, $booking->quantity);
                 }
             } elseif ($status === 'rejected') {
                 $booking->rejected_at    = Carbon::now();

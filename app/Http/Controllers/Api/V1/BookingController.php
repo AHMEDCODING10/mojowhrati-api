@@ -54,6 +54,7 @@ class BookingController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'product_id' => 'required|exists:products,id',
+            'quantity'   => 'nullable|integer|min:1',
             'customer_notes' => 'nullable|string',
         ]);
 
@@ -64,11 +65,12 @@ class BookingController extends Controller
         try {
             $data = $request->all();
             $data['customer_id'] = $request->user()->id;
+            $data['quantity'] = $request->quantity ?? 1;
 
             // 1. Fetch Product and check stock
             $product = \App\Models\Product::find($data['product_id']);
-            if (!$product || ($product->stock_quantity ?? 0) <= 0) {
-                return $this->error('غير متوفر حالياً', 422);
+            if (!$product || ($product->stock_quantity ?? 0) < $data['quantity']) {
+                return $this->error('الكمية المطلوبة غير متوفرة حالياً', 422);
             }
 
             // 2. Prevent duplicate bookings for the same product by the same user
