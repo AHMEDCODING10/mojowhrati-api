@@ -33,10 +33,15 @@ class BookingStatusNotification extends Notification implements ShouldQueue
         ];
 
         $title = $statusAr[$this->booking->status] ?? 'تحديث على حالة الحجز';
-        $message = "تم تغيير حالة حجزك للمنتج {$this->booking->product->title}.";
+        $itemTitle = $this->booking->product->title;
+        $qty = $this->booking->quantity;
+        
+        $message = "تم تغيير حالة حجزك للمنتج $itemTitle (الكمية: $qty).";
         
         if ($this->booking->status === 'confirmed') {
-            $message .= " يمكنك الآن التواصل مع التاجر.";
+            $message = "تم تأكيد حجزك لعدد ($qty) قطعة من $itemTitle. يمكنك الآن التواصل مع التاجر.";
+        } elseif ($this->booking->status === 'rejected') {
+            $message = "عذراً، تم رفض حجزك لـ $itemTitle. السبب: " . ($this->booking->rejection_reason ?? 'غير محدد');
         }
 
         return [
