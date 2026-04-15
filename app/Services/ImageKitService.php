@@ -7,14 +7,14 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 
-class ImgbbService
+class ImageKitService
 {
     protected $privateKey;
 
     public function __construct()
     {
-        // Use the ImageKit Private Key provided by the user
-        $this->privateKey = env('IMAGEKIT_PRIVATE_KEY', 'private_6WPi++CglWrqCuxY4Mc07Nk8HsM=');
+        // Use the ImageKit Private Key from .env
+        $this->privateKey = env('IMAGEKIT_PRIVATE_KEY');
     }
 
     /**

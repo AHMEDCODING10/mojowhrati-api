@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
+use App\Http\Resources\Api\V1\BookingResource;
+
 class BookingController extends Controller
 {
     protected $bookingService;
@@ -28,38 +30,11 @@ class BookingController extends Controller
                 return $this->success([], 'بانتظار إعداد الملف الشخصي للتاجر');
             }
             $bookings = $this->bookingService->getMerchantBookings($merchant->id);
-            
-            // Transform product images so full URLs are returned (same as customer branch)
-            $productService = app(\App\Services\ProductService::class);
-            $bookings->transform(function ($booking) use ($productService) {
-                if ($booking->product) {
-                    $productService->transformProductImages($booking->product);
-                }
-                return $booking;
-            });
         } else {
             $bookings = $this->bookingService->getCustomerBookings($user->id);
-            
-            // Privacy and Image transformation
-            $productService = app(\App\Services\ProductService::class);
-            $bookings->transform(function ($booking) use ($productService) {
-                if ($booking->product) {
-                    $productService->transformProductImages($booking->product);
-                }
-                
-                if ($booking->status !== 'confirmed' && $booking->status !== 'completed') {
-                    if ($booking->merchant) {
-                        $booking->merchant->makeHidden(['contact_number', 'whatsapp_number', 'email', 'documents', 'commercial_register', 'tax_number']);
-                    }
-                    if ($booking->product && $booking->product->merchant) {
-                        $booking->product->merchant->makeHidden(['contact_number', 'whatsapp_number', 'email', 'documents', 'commercial_register', 'tax_number']);
-                    }
-                }
-                return $booking;
-            });
         }
         
-        return $this->success($bookings);
+        return $this->success(BookingResource::collection($bookings));
     }
 
     public function show(Request $request, $id)
@@ -72,22 +47,7 @@ class BookingController extends Controller
             return $this->error('Unauthorized', 403);
         }
 
-        // Privacy Logic
-        if ($user->role !== 'merchant' && $booking->status !== 'confirmed') {
-            if ($booking->merchant) {
-                $booking->merchant->makeHidden(['contact_number', 'whatsapp_number', 'email']);
-            }
-            if ($booking->product && $booking->product->merchant) {
-                $booking->product->merchant->makeHidden(['contact_number', 'whatsapp_number', 'email']);
-            }
-        }
-
-        // Transform product images
-        if ($booking->product) {
-            app(\App\Services\ProductService::class)->transformProductImages($booking->product);
-        }
-
-        return $this->success($booking);
+        return $this->success(new BookingResource($booking));
     }
 
     public function store(Request $request)
@@ -98,10 +58,6 @@ class BookingController extends Controller
         ]);
 
         if ($validator->fails()) {
-            Log::info('Booking Validation Failed', [
-                'request' => $request->all(),
-                'errors' => $validator->errors()
-            ]);
             return $this->error('بيانات غير صالحة', 422, $validator->errors());
         }
 
@@ -126,7 +82,7 @@ class BookingController extends Controller
             }
 
             $booking = $this->bookingService->createBooking($data);
-            return $this->success($booking, 'تم الحجز بنجاح. بانتظار تأكيد التاجر.', 201);
+            return $this->success(new BookingResource($booking), 'تم الحجز بنجاح. بانتظار تأكيد التاجر.', 201);
         } catch (\Exception $e) {
             return $this->error($e->getMessage(), 422);
         }
@@ -137,18 +93,10 @@ class BookingController extends Controller
         $user = $request->user();
         $booking = Booking::with(['product', 'customer'])->findOrFail($id);
 
-        // Authorization: resolve merchant ID reliably using DB fallback
-        // This avoids 403 errors on real devices where the eager-loaded relationship may not be fresh
         $userMerchantId = $user->merchant?->id
             ?? DB::table('merchants')->where('user_id', $user->id)->value('id');
 
         if ($user->role !== 'merchant' || !$userMerchantId || (int)$userMerchantId !== (int)$booking->merchant_id) {
-            Log::warning('Unauthorized booking update attempt', [
-                'user_id'             => $user->id,
-                'user_role'           => $user->role,
-                'resolved_merchant_id'=> $userMerchantId,
-                'booking_merchant_id' => $booking->merchant_id,
-            ]);
             return $this->error('غير مصرح لك بتعديل هذا الحجز', 403);
         }
 
@@ -171,15 +119,10 @@ class BookingController extends Controller
                 $request->rejection_reason
             );
 
-            // Refresh to guarantee rejection_reason is included in the serialized response
             $booking->refresh();
 
-            return $this->success($booking, 'تم تحديث حالة الحجز بنجاح');
+            return $this->success(new BookingResource($booking), 'تم تحديث حالة الحجز بنجاح');
         } catch (\Exception $e) {
-            Log::error('Booking update error', [
-                'booking_id' => $id,
-                'error'      => $e->getMessage(),
-            ]);
             return $this->error('حدث خطأ أثناء تحديث الحجز: ' . $e->getMessage(), 500);
         }
     }

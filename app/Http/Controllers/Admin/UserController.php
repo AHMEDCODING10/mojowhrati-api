@@ -30,7 +30,7 @@ class UserController extends Controller
         $userData['status'] = 'active';
 
         if ($request->hasFile('profile_image')) {
-            $userData['profile_image'] = app(\App\Services\ImgbbService::class)->upload($request->file('profile_image'));
+            $userData['profile_image'] = app(\App\Services\ImageKitService::class)->upload($request->file('profile_image'));
         }
 
         $user = User::create($userData);
@@ -116,7 +116,7 @@ class UserController extends Controller
             if ($user->profile_image && !str_starts_with($user->profile_image, 'http')) {
                 \Storage::disk('public')->delete($user->profile_image);
             }
-            $userData['profile_image'] = app(\App\Services\ImgbbService::class)->upload($request->file('profile_image'));
+            $userData['profile_image'] = app(\App\Services\ImageKitService::class)->upload($request->file('profile_image'));
         }
 
         $user->update($userData);

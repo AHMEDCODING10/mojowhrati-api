@@ -37,7 +37,7 @@ class BannerController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = app(\App\Services\ImgbbService::class)->upload($request->file('image'));
+            $imagePath = app(\App\Services\ImageKitService::class)->upload($request->file('image'));
         }
 
         Banner::create([
@@ -93,7 +93,7 @@ class BannerController extends Controller
             if ($banner->image_url && !str_starts_with($banner->image_url, 'http')) {
                 Storage::disk('public')->delete($banner->image_url);
             }
-            $data['image_url'] = app(\App\Services\ImgbbService::class)->upload($request->file('image'));
+            $data['image_url'] = app(\App\Services\ImageKitService::class)->upload($request->file('image'));
         }
 
         $banner->update($data);

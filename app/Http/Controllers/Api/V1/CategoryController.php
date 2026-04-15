@@ -7,16 +7,16 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Traits\ApiResponse;
-use App\Services\ImgbbService;
+use App\Services\ImageKitService;
 
 class CategoryController extends Controller
 {
     use ApiResponse;
-    protected $imgbbService;
+    protected $ImageKitService;
 
-    public function __construct(ImgbbService $imgbbService)
+    public function __construct(ImageKitService $ImageKitService)
     {
-        $this->imgbbService = $imgbbService;
+        $this->ImageKitService = $ImageKitService;
     }
 
     public function index()
@@ -41,7 +41,7 @@ class CategoryController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $this->imgbbService->upload($request->file('image'));
+            $imagePath = $this->ImageKitService->upload($request->file('image'));
         }
 
         $category = Category::create([
