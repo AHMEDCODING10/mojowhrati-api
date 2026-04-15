@@ -60,7 +60,7 @@ class BookingService
                 'status'         => 'pending',
                 'expires_at'     => Carbon::now()->addHours(24),
                 'customer_notes' => $data['customer_notes'] ?? null,
-                'total_price'    => $product->final_price * $requestedQuantity,
+                'total_price'    => 0,
                 'paid_amount'    => 0,
             ]);
 

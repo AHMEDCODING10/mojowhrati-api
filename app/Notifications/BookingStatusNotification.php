@@ -29,6 +29,7 @@ class BookingStatusNotification extends Notification implements ShouldQueue
             'confirmed' => 'تم تأكيد حجزك! 🎉',
             'rejected' => 'عذراً، تم رفض حجزك.',
             'cancelled' => 'تم إلغاء الحجز.',
+            'expired' => 'انتهت صلاحية الحجز.',
             'completed' => 'تم إكمال الطلب.',
         ];
 
@@ -42,6 +43,8 @@ class BookingStatusNotification extends Notification implements ShouldQueue
             $message = "تم تأكيد حجزك لعدد ($qty) قطعة من $itemTitle. يمكنك الآن التواصل مع التاجر.";
         } elseif ($this->booking->status === 'rejected') {
             $message = "عذراً، تم رفض حجزك لـ $itemTitle. السبب: " . ($this->booking->rejection_reason ?? 'غير محدد');
+        } elseif ($this->booking->status === 'expired') {
+            $message = "انتهت صلاحية حجزك للمنتج $itemTitle لعدم التأكيد خلال 24 ساعة.";
         }
 
         return [
