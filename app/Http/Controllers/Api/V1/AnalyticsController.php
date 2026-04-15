@@ -52,7 +52,7 @@ class AnalyticsController extends Controller
             ->get()
             ->pluck('count', 'status');
 
-        $totalBookings = Booking::where('merchant_id', $merchantId)->count();
+        $totalBookings = Booking::where('merchant_id', $merchantId)->sum('quantity');
 
         // 3. Top Viewed Products
         $topProducts = Product::where('merchant_id', $merchantId)
@@ -70,7 +70,7 @@ class AnalyticsController extends Controller
         // Weekly (Last 7 days)
         $weeklyStats = Booking::where('merchant_id', $merchantId)
             ->where('created_at', '>=', $now->copy()->subDays(6)->startOfDay())
-            ->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as count'))
+            ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(quantity) as count'))
             ->groupBy('date')
             ->orderBy('date', 'asc')
             ->get()
@@ -88,7 +88,7 @@ class AnalyticsController extends Controller
         // Monthly (Last 30 days)
         $monthlyStats = Booking::where('merchant_id', $merchantId)
             ->where('created_at', '>=', $now->copy()->subDays(29)->startOfDay())
-            ->select(DB::raw('DATE(created_at) as date'), DB::raw('count(*) as count'))
+            ->select(DB::raw('DATE(created_at) as date'), DB::raw('SUM(quantity) as count'))
             ->groupBy('date')
             ->orderBy('date', 'asc')
             ->get()
@@ -108,12 +108,12 @@ class AnalyticsController extends Controller
         // 6. Growth Percentage (Comparing last 30 days to previous 30 days)
         $currentPeriodBookings = Booking::where('merchant_id', $merchantId)
             ->where('created_at', '>=', $now->copy()->subDays(30)->startOfDay())
-            ->count();
+            ->sum('quantity');
             
         $previousPeriodBookings = Booking::where('merchant_id', $merchantId)
             ->where('created_at', '>=', $now->copy()->subDays(60)->startOfDay())
             ->where('created_at', '<', $now->copy()->subDays(30)->startOfDay())
-            ->count();
+            ->sum('quantity');
 
         $growth = 0;
         if ($previousPeriodBookings > 0) {

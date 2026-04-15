@@ -79,6 +79,17 @@ class Product extends Model
         }
     }
 
-    protected $appends = ['average_rating', 'reviews_count', 'image_url'];
+    public function getAvailableStockAttribute()
+    {
+        if (!$this->manage_stock) return 999;
+        
+        $pendingQuantity = \App\Models\Booking::where('product_id', $this->id)
+            ->where('status', 'pending')
+            ->sum('quantity');
+            
+        return max(0, $this->stock_quantity - $pendingQuantity);
+    }
+
+    protected $appends = ['average_rating', 'reviews_count', 'image_url', 'available_stock'];
 }
 
