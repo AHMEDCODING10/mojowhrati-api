@@ -23,6 +23,7 @@ class CustomDesignOrderController extends Controller
             ->latest()
             ->get()
             ->map(function ($order) {
+                /** @var \App\Models\CustomDesignOrder $order */
                 $arr = $order->toArray();
                 $arr['image_url'] = $order->image_path
                     ? \image_url($order->image_path)
