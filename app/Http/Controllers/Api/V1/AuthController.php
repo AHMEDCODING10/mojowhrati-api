@@ -5,6 +5,10 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Services\AuthService;
 use App\Http\Requests\Api\V1\RegisterRequest;
+use App\Http\Requests\Api\V1\LoginRequest;
+use App\Http\Requests\Api\V1\UpdateProfileRequest;
+use App\Http\Requests\Api\V1\ResetPasswordRequest;
+use App\Http\Requests\Api\V1\ChangePasswordRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
@@ -33,17 +37,8 @@ class AuthController extends Controller
         }
     }
 
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'phone' => 'required',
-            'password' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->error('يرجى التحقق من البيانات', 422, $validator->errors());
-        }
-
         try {
             $result = $this->authService->login($request->phone, $request->password);
             return $this->success($result, 'تم تسجيل الدخول بنجاح');
@@ -58,37 +53,16 @@ class AuthController extends Controller
         return $this->success(null, 'تم تسجيل الخروج بنجاح');
     }
 
-    public function updateProfile(Request $request)
+    public function updateProfile(UpdateProfileRequest $request)
     {
         $user = $request->user();
-        
-        $validator = Validator::make($request->all(), [
-            'name' => 'sometimes|string|max:255',
-            'phone' => 'sometimes|string|unique:users,phone,' . $user->id,
-            'password' => 'sometimes|string|min:8|confirmed',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->error('خطأ في البيانات', 422, $validator->errors());
-        }
-
         $user = $this->authService->updateProfile($user, $request->all());
 
         return $this->success(['user' => $user], 'تم تحديث الملف الشخصي بنجاح');
     }
 
-    public function resetPassword(Request $request)
+    public function resetPassword(ResetPasswordRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
-            'phone' => 'required|string',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->error('بيانات غير صالحة', 422, $validator->errors());
-        }
-
         try {
             $this->authService->resetPassword(
                 $request->email,
@@ -141,17 +115,8 @@ class AuthController extends Controller
         }
     }
 
-    public function changePassword(Request $request)
+    public function changePassword(ChangePasswordRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'current_password' => 'required',
-            'new_password' => 'required|string|min:8|confirmed',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->error('بيانات غير صالحة', 422, $validator->errors());
-        }
-
         try {
             $this->authService->changePassword($request->user(), $request->current_password, $request->new_password);
             return $this->success(null, 'تم تغيير كلمة المرور بنجاح');

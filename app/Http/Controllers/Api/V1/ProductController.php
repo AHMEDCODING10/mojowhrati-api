@@ -9,6 +9,7 @@ use App\Http\Requests\Api\V1\StoreProductRequest;
 use App\Http\Requests\Api\V1\UpdateProductRequest;
 use App\Http\Resources\Api\V1\ProductResource;
 use Illuminate\Http\Request;
+use App\Models\Product;
 
 class ProductController extends Controller
 {
@@ -48,7 +49,7 @@ class ProductController extends Controller
     public function update(UpdateProductRequest $request, $id)
     {
         $user = $request->user();
-        $product = \App\Models\Product::find($id);
+        $product = Product::find($id);
 
         if (!$product) {
             return $this->error('المنتج غير موجود', 404);
@@ -73,7 +74,7 @@ class ProductController extends Controller
             return $this->error('غير مصرح لك بحذف المنتجات', 403);
         }
 
-        $product = \App\Models\Product::find($id);
+        $product = Product::find($id);
 
         if (!$product) {
             return $this->error('المنتج غير موجود', 404);

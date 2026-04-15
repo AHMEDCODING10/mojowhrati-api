@@ -47,8 +47,8 @@ RUN a2enmod proxy proxy_http proxy_wstunnel rewrite headers
 RUN echo "<VirtualHost *:80>\n\
     DocumentRoot /var/www/html/public\n\
     <Directory /var/www/html/public>\n\
-        AllowOverride All\n\
-        Require all granted\n\
+    AllowOverride All\n\
+    Require all granted\n\
     </Directory>\n\
     \n\
     # تفعيل نظام البروكسي لـ WebSockets مع الحفاظ على اسم المضيف (Host Header)\n\
@@ -65,7 +65,7 @@ RUN echo "<VirtualHost *:80>\n\
     \n\
     # تفعيل ترويسة البروتوكول لتعريف لارافل بالـ SSL الخارجي\n\
     RequestHeader set X-Forwarded-Proto \"https\"\n\
-</VirtualHost>" > /etc/apache2/sites-available/000-default.conf
+    </VirtualHost>" > /etc/apache2/sites-available/000-default.conf
 
 # نسخ سكربت التشغيل ومنحه صلاحية التنفيذ
 COPY start.sh /usr/local/bin/start.sh
