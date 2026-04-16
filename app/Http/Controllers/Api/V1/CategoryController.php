@@ -19,14 +19,23 @@ class CategoryController extends Controller
         $this->ImageKitService = $ImageKitService;
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::withCount(['products' => function($query) {
+        $query = Category::withCount(['products' => function($query) {
                 $query->where('status', 'published');
             }])
             ->orderBy('display_order')
-            ->orderBy('name')
-            ->get();
+            ->orderBy('name');
+
+        // للعملاء والزوار: عرض الأقسام النشطة فقط
+        // للأدمن والتاجر: عرض الكل
+        $user = $request->user();
+        $isAdmin = $user && $user->role === 'admin';
+        if (!$isAdmin) {
+            $query->where('is_active', true);
+        }
+
+        $categories = $query->get();
 
         return $this->success($categories, 'تم جلب الأقسام بنجاح');
     }
@@ -53,6 +62,16 @@ class CategoryController extends Controller
         ]);
 
         return $this->success($category, 'تم إضافة القسم بنجاح', 201);
+    }
+
+    public function toggle($id)
+    {
+        $category = Category::findOrFail($id);
+        $category->is_active = !$category->is_active;
+        $category->save();
+
+        $status = $category->is_active ? 'مفعّل' : 'موقوف';
+        return $this->success($category, "تم تغيير حالة القسم إلى: $status");
     }
 
     public function destroy($id)

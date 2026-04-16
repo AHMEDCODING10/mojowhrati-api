@@ -18,20 +18,12 @@ class CustomDesignOrderController extends Controller
             return $this->error('Merchant profile not found', 404);
         }
 
-        $orders = CustomDesignOrder::with('user')
+        $orders = CustomDesignOrder::with(['user', 'merchant'])
             ->where('merchant_id', $merchant->id)
             ->latest()
-            ->get()
-            ->map(function ($order) {
-                /** @var \App\Models\CustomDesignOrder $order */
-                $arr = $order->toArray();
-                $arr['image_url'] = $order->image_path
-                    ? \image_url($order->image_path)
-                    : null;
-                return $arr;
-            });
+            ->get();
 
-        return $this->success($orders);
+        return $this->success(\App\Http\Resources\Api\V1\CustomDesignResource::collection($orders));
     }
 
     public function updateStatus(Request $request, $id)

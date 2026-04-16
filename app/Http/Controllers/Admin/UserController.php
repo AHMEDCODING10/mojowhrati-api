@@ -26,7 +26,6 @@ class UserController extends Controller
 
         $userData = $request->only(['name', 'email', 'phone', 'role']);
         $userData['password'] = bcrypt($request->password);
-        $userData['password_plain'] = $request->password;
         $userData['status'] = 'active';
 
         if ($request->hasFile('profile_image')) {
@@ -109,7 +108,6 @@ class UserController extends Controller
         $userData = $request->only(['name', 'email', 'phone', 'role']);
         if ($request->filled('password')) {
             $userData['password'] = bcrypt($request->password);
-            $userData['password_plain'] = $request->password;
         }
 
         if ($request->hasFile('profile_image')) {

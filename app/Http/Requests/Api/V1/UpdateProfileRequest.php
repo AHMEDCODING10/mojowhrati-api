@@ -25,7 +25,7 @@ class UpdateProfileRequest extends FormRequest
                 'sometimes', 
                 'string', 
                 'confirmed', 
-                Password::min(8)->letters()->mixedCase()->numbers()->symbols()
+                Password::min(8)
             ],
         ];
     }
@@ -37,7 +37,7 @@ class UpdateProfileRequest extends FormRequest
             'phone.regex' => 'يرجى إدخال رقم يمني صحيح (مثال: 77XXXXXXX).',
             'phone.unique' => 'رقم الهاتف مسجل مسبقاً لحساب آخر.',
             'password.confirmed' => 'كلمة المرور غير متطابقة.',
-            'password.min' => 'كلمة المرور ضعيفة. يجب أن تحتوي على 8 رموز على الأقل.',
+            'password.min' => 'كلمة المرور يجب أن لا تقل عن 8 خانات.',
         ];
     }
 

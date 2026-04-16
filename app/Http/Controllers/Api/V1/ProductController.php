@@ -30,6 +30,8 @@ class ProductController extends Controller
     {
         try {
             $product = $this->productService->getProductBySlug($slug);
+            // Increment views_count atomically (avoids race conditions)
+            $product->increment('views_count');
             return new ProductResource($product);
         } catch (\Exception $e) {
             return $this->error('المنتج غير موجود', 404);

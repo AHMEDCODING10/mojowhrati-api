@@ -83,11 +83,7 @@
                     <div class="flex items-center justify-between pt-2 border-t border-main/10">
                         <div class="space-y-1">
                             <p class="text-[9px] text-muted/40 font-black uppercase tracking-widest">{{ __('الوزن') }}</p>
-                            <p class="text-base font-black text-main">{{ number_format($product->weight, 2) }} <span class="text-[10px]">{{ __('جرام') }}</span></p>
-                        </div>
-                        <div class="space-y-1 text-left">
-                            <p class="text-[9px] text-muted/40 font-black uppercase tracking-widest">{{ __('السعر التقديري') }}</p>
-                            <p class="text-base font-black text-gold">{{ number_format($product->final_price) }} <span class="text-[10px]">{{ __('أوقية') }}</span></p>
+                            <p class="text-lg font-black text-gold">{{ number_format($product->weight, 2) }} <span class="text-[10px] text-main/60">{{ __('جرام') }}</span></p>
                         </div>
                     </div>
 

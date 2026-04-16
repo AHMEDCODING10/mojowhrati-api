@@ -22,11 +22,17 @@ class CustomDesignResource extends JsonResource
             'weight' => $this->weight,
             'status' => $this->status,
             'image_url' => $this->image_path ? image_url($this->image_path) : null,
-            'merchant' => [
+            'merchant' => $this->merchant ? [
                 'id' => $this->merchant->id,
                 'store_name' => $this->merchant->store_name,
                 'logo_url' => $this->merchant->logo_url,
-            ],
+                'whatsapp' => $this->merchant->whatsapp_number ?? $this->merchant->contact_number,
+            ] : null,
+            'user' => $this->relationLoaded('user') && $this->user ? [
+                'id' => $this->user->id,
+                'name' => $this->user->name,
+                'phone' => $this->user->phone,
+            ] : null,
             'created_at' => $this->created_at,
         ];
     }

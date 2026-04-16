@@ -23,7 +23,7 @@ class ResetPasswordRequest extends FormRequest
                 'required', 
                 'string', 
                 'confirmed', 
-                Password::min(8)->letters()->mixedCase()->numbers()->symbols()
+                Password::min(8)
             ],
         ];
     }
@@ -36,6 +36,7 @@ class ResetPasswordRequest extends FormRequest
             'phone.required' => 'يرجى إدخال رقم الهاتف.',
             'phone.regex' => 'يرجى إدخال رقم يمني صحيح (مثال: 77XXXXXXX).',
             'password.required' => 'يرجى إدخال كلمة المرور.',
+            'password.min' => 'كلمة المرور يجب أن لا تقل عن 8 خانات.',
             'password.confirmed' => 'كلمة المرور غير متطابقة.',
         ];
     }

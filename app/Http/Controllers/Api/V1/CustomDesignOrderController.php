@@ -34,27 +34,33 @@ class CustomDesignOrderController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'description' => 'required|string',
-            'budget'      => 'nullable|numeric',
+            'budget'      => 'nullable|string', // Changed to string to handle empty inputs safely, then cast manually
             'purity'      => 'nullable|string',
-            'weight'      => 'nullable|numeric',
+            'weight'      => 'nullable|string', // Changed to string
             'merchant_id' => 'required|exists:merchants,id',
-            'reference_image' => 'nullable|image|max:5120',
+            'reference_image' => 'nullable|image|max:10240', // Increased size to 10MB
         ]);
 
         if ($validator->fails()) {
             return $this->error('بيانات غير صالحة', 422, $validator->errors());
         }
 
-        $data = $request->only(['description', 'budget', 'purity', 'weight', 'merchant_id']);
-        $data['user_id'] = $request->user()->id;
-        $data['status']  = 'pending';
+        $data = [
+            'description' => $request->description,
+            'budget'      => $request->budget ?: null,
+            'purity'      => $request->purity,
+            'weight'      => $request->weight ?: null,
+            'merchant_id' => $request->merchant_id,
+            'user_id'     => $request->user()->id,
+            'status'      => 'pending',
+        ];
 
         if ($request->hasFile('reference_image')) {
             $data['image_path'] = $this->imageKitService->upload($request->file('reference_image'));
         }
 
         $order = CustomDesignOrder::create($data);
-        $order->load('merchant');
+        $order->load(['merchant', 'user']);
 
         // Notify merchant via WebSocket
         try {

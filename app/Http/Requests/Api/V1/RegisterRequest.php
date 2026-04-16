@@ -24,7 +24,7 @@ class RegisterRequest extends FormRequest
                 'required', 
                 'string', 
                 'confirmed', 
-                Password::min(8)->letters()->mixedCase()->numbers()->symbols()
+                Password::min(8)
             ],
             'role' => ['nullable', 'string', 'in:customer,merchant'],
             'store_name' => ['required_if:role,merchant', 'string', 'max:255', 'regex:/^[a-zA-Z\p{L}\s]+$/u'],
@@ -45,6 +45,7 @@ class RegisterRequest extends FormRequest
             'email.email' => 'صيغة البريد الإلكتروني غير صحيحة.',
             'email.unique' => 'الإيميل مسجل مسبقاً، يرجى تسجيل الدخول.',
             'password.required' => 'يرجى إدخال كلمة المرور.',
+            'password.min' => 'كلمة المرور يجب أن لا تقل عن 8 خانات.',
             'password.confirmed' => 'كلمة المرور غير متطابقة.',
             'store_name.required_if' => 'يرجى إدخال اسم المتجر كتاجر.',
             'store_name.regex' => 'يرجى كتابة اسم المتجر باستخدام الحروف فقط دون أرقام أو رموز.',

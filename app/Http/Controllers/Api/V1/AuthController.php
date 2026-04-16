@@ -106,6 +106,10 @@ class AuthController extends Controller
             'email' => 'required|email',
             'code' => 'required|string|size:6',
             'password' => 'required|string|min:8|confirmed',
+        ], [
+            'password.min' => 'كلمة المرور يجب أن لا تقل عن 8 خانات.',
+            'password.confirmed' => 'تأكيد كلمة المرور غير متطابق.',
+            'code.size' => 'كود التحقق يجب أن يتكون من 6 أرقام.',
         ]);
         try {
             $this->authService->resetPasswordWithCode($request->email, $request->code, $request->password);
