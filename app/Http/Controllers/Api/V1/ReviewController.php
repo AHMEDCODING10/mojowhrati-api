@@ -67,6 +67,18 @@ class ReviewController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
+        // 🛡️ Security Check: Has the user actually completed a booking for this product?
+        $hasPurchased = \App\Models\Booking::where('customer_id', $request->user()->id)
+            ->where('product_id', $request->product_id)
+            ->where('status', 'completed')
+            ->exists();
+
+        if (!$hasPurchased) {
+            return response()->json([
+                'message' => 'عذراً، يمكنك فقط تقييم المنتجات التي قمت بشرائها وإكمال حجزها بنجاح.'
+            ], 403);
+        }
+
         try {
             $review = Review::create([
                 'user_id' => $request->user()->id,
