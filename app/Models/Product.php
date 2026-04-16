@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
         'merchant_id', 'category_id', 'material_id', 'title', 'slug', 'description', 
         'weight', 'stone_weight', 'purity', 'type', 'quantity', 'service_fee', 'manufacturer', 

@@ -47,10 +47,10 @@ class AnalyticsController extends Controller
 
         // 2. Booking Summary
         $bookingsGrouped = Booking::where('merchant_id', $merchantId)
-            ->select('status', DB::raw('count(*) as count'))
+            ->select('status', DB::raw('SUM(quantity) as volume'))
             ->groupBy('status')
             ->get()
-            ->pluck('count', 'status');
+            ->pluck('volume', 'status');
 
         $totalBookings = Booking::where('merchant_id', $merchantId)->sum('quantity');
 

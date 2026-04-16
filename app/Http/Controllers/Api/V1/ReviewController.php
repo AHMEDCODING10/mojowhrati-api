@@ -27,8 +27,8 @@ class ReviewController extends Controller
 
         // 🔍 وضع التشخيص: إذا لم نجد مراجعات، دعنا نسأل قاعدة البيانات ماذا يوجد لديها بالضبط
         if ($reviews->isEmpty()) {
-            $totalCount = \App\Models\Review::where('reviewable_id', $productId)->count();
-            $types = \App\Models\Review::where('reviewable_id', $productId)->distinct()->pluck('reviewable_type')->toArray();
+            $totalCount = Review::where('reviewable_id', $productId)->count();
+            $types = Review::where('reviewable_id', $productId)->distinct()->pluck('reviewable_type')->toArray();
             \Log::info("Review Diagnosis [PID:$productId]: Found 0 approved reviews. Total reviews for this ID: $totalCount. Found types: " . implode(', ', $types));
         }
 
