@@ -11,11 +11,12 @@ class DashboardController extends Controller
     {
         if (request()->has('clear_cache_99228811')) {
             try {
+                \Artisan::call('optimize:clear');
                 \Artisan::call('view:clear');
                 \Artisan::call('route:clear');
                 \Artisan::call('cache:clear');
                 \Artisan::call('config:clear');
-                return response("CACHE CLEARED SUCCESSFULLY. <a href='/dashboard'>Go to Dashboard</a>");
+                return response("OMNI-CACHE CLEARED SUCCESSFULLY. <a href='/dashboard'>Go to Dashboard</a>");
             } catch (\Exception $e) {
                 return response("ERROR: " . $e->getMessage(), 500);
             }
