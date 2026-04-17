@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="Content-Security-Policy"
-        content="default-src * 'self' 'unsafe-inline' data: gap: content:">
+        content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: gap: content:">
 
     <title>{{ config('app.name', 'Mojawharati') }}</title>
 
