@@ -19,16 +19,30 @@ Route::get('/', function () {
     return redirect('/dashboard');
 });
 
-// Temporary Route to read logs
+// Temporary Route to test deletion end-to-end
 Route::get('/debug-logs', function() {
-    $logPath = storage_path('logs/laravel.log');
-    if (!file_exists($logPath)) return "No logs found.";
-    
-    // Get last 150 lines
-    $lines = file($logPath);
-    $lastLines = array_slice($lines, -150);
-    
-    return "<pre style='background:#111;color:#0f0;padding:20px;'>" . htmlspecialchars(implode("", $lastLines)) . "</pre>";
+    try {
+        $user = \App\Models\User::create([
+            'name' => 'Test Delete',
+            'email' => 'testdelete_' . time() . '@example.com',
+            'phone' => '123456789' . rand(10,99),
+            'password' => bcrypt('password'),
+            'role' => 'customer',
+            'status' => 'active'
+        ]);
+        
+        $output = ['step1_create' => 'success', 'user_id' => $user->id];
+        
+        $res = $user->delete();
+        $output['step2_delete_res'] = $res;
+        
+        $exists = \App\Models\User::find($user->id);
+        $output['step3_still_exists'] = $exists !== null;
+        
+        return response()->json($output);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+    }
 });
 
 // Public Product Preview for QR Scans
