@@ -25,6 +25,22 @@
     </div>
     @endif
 
+    @if(session('error'))
+    <div class="px-8 py-4 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-2xl font-black text-sm text-center shadow-lg shadow-rose-500/5 animate-in fade-in slide-in-from-top-4 duration-700">
+        {{ session('error') }}
+    </div>
+    @endif
+
+    @if($errors->any())
+    <div class="px-8 py-4 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-2xl font-black text-sm text-center shadow-lg shadow-rose-500/5 animate-in fade-in slide-in-from-top-4 duration-700">
+        <ul class="list-disc list-inside">
+            @foreach($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
     <!-- Search & Filters -->
     <div class="luxury-card p-8 border border-gold/10 bg-white/50 dark:bg-[#1A1A1A]/50 backdrop-blur-md rounded-[2.5rem] shadow-2xl shadow-gold/5">
         <form action="{{ route('users.index') }}" method="GET" class="flex flex-col lg:flex-row gap-8 items-center justify-between">
