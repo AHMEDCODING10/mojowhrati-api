@@ -147,8 +147,12 @@ class UserController extends Controller
         return back()->with('success', $message);
     }
 
-    public function destroy(User $user)
+    public function destroy($id)
     {
+        $user = User::findOrFail($id);
+        
+        \Log::info("Attempting to delete user ID from Web UI: " . $user->id);
+
         if ($user->id === auth()->id()) {
             return back()->with('error', 'لا يمكنك حذف حسابك الحالي');
         }
@@ -159,6 +163,7 @@ class UserController extends Controller
                 if ($user->merchant->bookings()->exists()) {
                     return back()->with('error', 'لا يمكن حذف هذا التاجر لوجود عمليات حجز مرتبطة به. يفضل حظر الحساب بدلاً من حذفه للحفاظ على السجلات.');
                 }
+
                 if ($user->merchant->products()->exists()) {
                     return back()->with('error', 'لا يمكن حذف هذا التاجر لوجود منتجات مسجلة باسمه. يرجى حذف المنتجات أولاً.');
                 }
