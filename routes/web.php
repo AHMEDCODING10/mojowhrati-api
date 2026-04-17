@@ -151,7 +151,23 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
-// Storage Fallback for Windows/Permission issues (Fixed 403 Error)
+// Temporary Secret Maintenance Route (Delete after use)
+Route::get('/maintenance-99228811-reset', function() {
+    try {
+        echo "Starting Migration...<br>";
+        \Artisan::call('migrate', ['--force' => true]);
+        echo "Migration Result: " . \Artisan::output() . "<br><br>";
+
+        echo "Starting Factory Reset...<br>";
+        \Artisan::call('app:clean-database', ['--no-interaction' => true]);
+        echo "Reset Result: " . \Artisan::output() . "<br><br>";
+
+        return "SYSTEM RESET COMPLETED SUCCESSFULLY! Please delete this route from web.php now.";
+    } catch (\Exception $e) {
+        return "ERROR: " . $e->getMessage();
+    }
+});
+
 Route::get('/storage/profile_images/{filename}', function ($filename) {
     if (!auth()->check()) abort(401);
     $path = storage_path('app/public/profile_images/' . $filename);
