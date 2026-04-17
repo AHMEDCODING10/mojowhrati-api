@@ -9,25 +9,6 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        if (request()->has('reset_secret_99228811')) {
-            try {
-                // 1. Run Migrations with force (vital for foreign key fixes)
-                \Artisan::call('migrate', ['--force' => true]);
-                
-                // 2. Run Clean Command
-                \Artisan::call('app:clean-database', ['--no-interaction' => true]);
-                
-                // 3. Clear all caches
-                \Artisan::call('route:clear');
-                \Artisan::call('cache:clear');
-                \Artisan::call('view:clear');
-
-                return response("SUCCESS: System Factory Reset Completed! <a href='/dashboard'>Go to Dashboard</a>");
-            } catch (\Exception $e) {
-                return response("ERROR: " . $e->getMessage(), 500);
-            }
-        }
-
         $stats = [
             'total_users' => \App\Models\User::where('role', '!=', 'merchant')->count(),
             'total_merchants' => \App\Models\Merchant::where('approved', true)->count(), // Verified only
