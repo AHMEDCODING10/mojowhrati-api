@@ -19,6 +19,18 @@ Route::get('/', function () {
     return redirect('/dashboard');
 });
 
+// Temporary Route to read logs
+Route::get('/debug-logs', function() {
+    $logPath = storage_path('logs/laravel.log');
+    if (!file_exists($logPath)) return "No logs found.";
+    
+    // Get last 150 lines
+    $lines = file($logPath);
+    $lastLines = array_slice($lines, -150);
+    
+    return "<pre style='background:#111;color:#0f0;padding:20px;'>" . htmlspecialchars(implode("", $lastLines)) . "</pre>";
+});
+
 // Public Product Preview for QR Scans
 Route::get('/p/{id}', [\App\Http\Controllers\Web\ProductPreviewController::class, 'show'])->name('products.preview');
 
