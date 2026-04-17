@@ -9,19 +9,6 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        if (request()->has('clear_cache_99228811')) {
-            try {
-                \Artisan::call('optimize:clear');
-                \Artisan::call('view:clear');
-                \Artisan::call('route:clear');
-                \Artisan::call('cache:clear');
-                \Artisan::call('config:clear');
-                return response("OMNI-CACHE CLEARED SUCCESSFULLY. <a href='/dashboard'>Go to Dashboard</a>");
-            } catch (\Exception $e) {
-                return response("ERROR: " . $e->getMessage(), 500);
-            }
-        }
-
         $stats = [
             'total_users' => \App\Models\User::where('role', '!=', 'merchant')->count(),
             'total_merchants' => \App\Models\Merchant::where('approved', true)->count(), // Verified only
