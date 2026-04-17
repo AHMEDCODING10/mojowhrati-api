@@ -106,7 +106,49 @@
                 </thead>
                 <tbody class="divide-y divide-gold/5">
                     @forelse($users as $user)
-                        <tr class="group hover:bg-gold/5 transition-all duration-500">
+                        <tr class="group hover:bg-gold/5 transition-all duration-500" 
+                            x-data="{ 
+                                isDeleting: false, 
+                                isDeleted: false,
+                                deleteUser() {
+                                    if (!confirm('{{ __('هل أنت متأكد من حذف المستخدم نهائياً؟') }}')) return;
+                                    
+                                    this.isDeleting = true;
+                                    fetch('{{ route('users.destroy', $user->id) }}', {
+                                        method: 'POST',
+                                        headers: {
+                                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                            'Content-Type': 'application/json',
+                                            'Accept': 'application/json',
+                                            'X-HTTP-Method-Override': 'DELETE'
+                                        },
+                                        body: JSON.stringify({ _method: 'DELETE' })
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        if (data.status === 'success') {
+                                            this.isDeleted = true;
+                                            // Optional: show a small toast or notification
+                                        } else {
+                                            alert(data.message || 'حدث خطأ ما');
+                                            this.isDeleting = false;
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('Error:', error);
+                                        // On Render, we might hit the QUIC error here. 
+                                        // Even if it fails with a network error, the user might actually be deleted.
+                                        // So we force a check or just notify.
+                                        alert('انقطع الاتصال، يرجى تحديث الصفحة للتأكد من الحذف.');
+                                        this.isDeleting = false;
+                                    });
+                                }
+                            }" 
+                            x-show="!isDeleted" 
+                            x-transition:leave="transition ease-in duration-300"
+                            x-transition:leave-start="opacity-100 scale-100"
+                            x-transition:leave-end="opacity-0 scale-95"
+                            :class="isDeleting ? 'opacity-50 pointer-events-none' : ''">
                             <td class="px-10 py-8 text-main font-bold">
                                 <div class="flex items-center gap-6">
                                     <div class="w-14 h-14 rounded-2xl bg-white dark:bg-black border border-gold/20 flex items-center justify-center text-gold font-black uppercase group-hover:scale-110 group-hover:rotate-6 transition-all shadow-lg overflow-hidden relative">
@@ -163,21 +205,22 @@
                                             <i data-lucide="{{ $user->status === 'active' ? 'shield-off' : 'shield-check' }}" class="w-5 h-5"></i>
                                         </button>
                                     </form>
-
+ 
                                     @if(auth()->user()->canEdit())
                                         <a href="{{ route('users.edit', $user->id) }}" class="w-12 h-12 bg-white dark:bg-black border border-gold/10 rounded-2xl text-muted/40 hover:text-gold hover:border-gold transition-all flex items-center justify-center shadow-sm" title="{{ __('تعديل البيانات') }}">
                                             <i data-lucide="edit" class="w-5 h-5"></i>
                                         </a>
                                     @endif
-
+ 
                                     @if(auth()->user()->canDelete())
-                                        <form action="{{ route('users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('{{ __('هل أنت متأكد من حذف المستخدم نهائياً؟') }}')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="w-12 h-12 bg-rose-500/5 border border-rose-500/10 rounded-2xl text-rose-500/40 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center shadow-sm">
+                                        <button @click="deleteUser()" class="w-12 h-12 bg-rose-500/5 border border-rose-500/10 rounded-2xl text-rose-500/40 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center shadow-sm" title="{{ __('حذف المستخدم') }}">
+                                            <template x-if="!isDeleting">
                                                 <i data-lucide="trash-2" class="w-5 h-5"></i>
-                                            </button>
-                                        </form>
+                                            </template>
+                                            <template x-if="isDeleting">
+                                                <i data-lucide="refresh-cw" class="w-5 h-5 animate-spin"></i>
+                                            </template>
+                                        </button>
                                     @endif
                                 </div>
                             </td>

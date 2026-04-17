@@ -14,7 +14,7 @@ return new class extends Migration
         // Fix audit_logs actor_id
         Schema::table('audit_logs', function (Blueprint $table) {
             $table->dropForeign(['actor_id']);
-            $table->foreign('actor_id')->references('id')->on('Users')->onDelete('cascade');
+            $table->foreign('actor_id')->references('id')->on('users')->onDelete('cascade');
         });
 
         // Fix merchants approved_by
@@ -31,7 +31,7 @@ return new class extends Migration
     {
         Schema::table('audit_logs', function (Blueprint $table) {
             $table->dropForeign(['actor_id']);
-            $table->foreign('actor_id')->references('id')->on('Users');
+            $table->foreign('actor_id')->references('id')->on('users');
         });
 
         Schema::table('merchants', function (Blueprint $table) {

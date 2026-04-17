@@ -178,11 +178,28 @@ class UserController extends Controller
             }
 
             $user->delete();
+            
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'تم حذف المستخدم بنجاح'
+                ]);
+            }
+
             return redirect()->route('users.index')->with('success', 'تم حذف المستخدم بنجاح');
             
         } catch (\Exception $e) {
             \Log::error('User deletion error: ' . $e->getMessage());
-            return back()->with('error', 'حدث خطأ أثناء الحذف: يوجد بيانات مرتبطة بهذا المستخدم تمنع حذفه نهائياً.');
+            $errorMsg = 'حدث خطأ أثناء الحذف: يوجد بيانات مرتبطة بهذا المستخدم تمنع حذفه نهائياً.';
+            
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $errorMsg
+                ], 422);
+            }
+
+            return back()->with('error', $errorMsg);
         }
     }
 }
