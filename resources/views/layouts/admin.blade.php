@@ -10,7 +10,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="Content-Security-Policy"
-        content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: gap: content:">
+        content="default-src * 'self' 'unsafe-inline' data: gap: content:">
 
     <title>{{ config('app.name', 'Mojawharati') }}</title>
 
@@ -34,88 +34,6 @@
     </script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Tailwind JIT fallback for immediate styling without NPM -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: { gold: '#C5A059', onyx: '#151515' },
-                    fontFamily: { sans: ['Almarai', 'sans-serif'] }
-                }
-            }
-        }
-    </script>
-    <style type="text/tailwindcss">
-        @layer components {
-            .dashboard-card {
-                @apply rounded-[2rem] border transition-all duration-300;
-                background-color: #FFFFFF;
-                border-color: rgba(197, 160, 89, 0.2);
-                box-shadow: 0 10px 40px -10px rgba(197, 160, 89, 0.15);
-            }
-            .dark .dashboard-card {
-                background: linear-gradient(180deg, #2A2A2A 0%, #1A1A1A 100%);
-                border-color: rgba(255, 255, 255, 0.05);
-                border-top-color: rgba(255, 255, 255, 0.1);
-                box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
-            }
-            .sidebar-bg { background: linear-gradient(180deg, #EAD192 0%, #D4AE52 50%, #B08535 100%); }
-            .dark .sidebar-bg { background: linear-gradient(180deg, #1C1914 0%, #15120E 100%); }
-            .header-bg { background: linear-gradient(90deg, #C9A24C 0%, #DFB967 50%, #BB913D 100%); border-bottom: 1px solid rgba(255,255,255,0.2); }
-            .dark .header-bg { background: linear-gradient(90deg, #1A1713 0%, #171410 100%); border-bottom: 1px solid rgba(197, 160, 89, 0.1); }
-            .nav-item {
-                @apply flex items-center justify-between px-6 py-4 rounded-[1.2rem] transition-all duration-300;
-                color: #151515;
-            }
-            .nav-item:hover { background: rgba(0, 0, 0, 0.05); }
-            .dark .nav-item { color: rgba(255, 255, 255, 0.7); }
-            .dark .nav-item:hover { background: rgba(197, 160, 89, 0.1); color: #C5A059; }
-            .nav-item-active {
-                @apply flex items-center justify-between px-6 py-4 rounded-[1.2rem] transition-all duration-300;
-                background-color: #151515; color: #E8D095; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            }
-            .dark .nav-item-active {
-                background-color: #111; border: 1px solid #C5A059; color: #E8D095; box-shadow: 0 0 20px rgba(197, 160, 89, 0.25);
-            }
-            .card-icon-wrapper {
-                @apply p-3 rounded-2xl transition-transform;
-                background: rgba(197, 160, 89, 0.1); color: #C5A059;
-            }
-            .dark .card-icon-wrapper {
-                background: transparent; border: 1px solid #C5A059; color: #C5A059;
-            }
-            .bg-main {
-                @apply bg-[#FCF8F2] dark:bg-[#0E0C0A];
-            }
-            .text-gold-dark { color: #A88135; }
-            .text-gold-main { color: #C5A059; }
-        }
-        @layer base {
-            /* Standard Dark Mode Text Overrides */
-            .dark body { @apply text-white/90; }
-            .dark h1, .dark h2, .dark h3, .dark h4 { @apply text-white !important; }
-            .dark p, .dark span, .dark label { @apply text-white/70; }
-            
-            /* Force out any hardcoded black/dark text */
-            .dark .text-black, 
-            .dark .text-[#151515], 
-            .dark .text-[#1A1A1A],
-            .dark .text-[#333],
-            .dark .text-[#555],
-            .dark .text-onyx,
-            .dark .text-main { 
-                @apply text-white !important; 
-            }
-
-            /* Luxury Gold Accents */
-            .dark .text-gold, .dark .text-[#C5A059] { @apply text-[#E8D095] !important; }
-
-            .text-primary { @apply text-gray-900 dark:text-gray-100; }
-            .text-secondary { @apply text-gray-600 dark:text-gray-400; }
-        }
-    </style>
 </head>
 
 <body class="bg-main text-[#333] dark:text-white/90 antialiased h-screen overflow-hidden transition-colors duration-500"

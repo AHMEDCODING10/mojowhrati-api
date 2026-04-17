@@ -28,7 +28,7 @@ class CleanDatabase extends Command
      */
     public function handle()
     {
-        $this->info('Starting database cleanup...');
+        $this->info('Starting full factory reset...');
 
         // Disable foreign key checks
         Schema::disableForeignKeyConstraints();
@@ -62,21 +62,47 @@ class CleanDatabase extends Command
             }
         }
 
-        // Selective cleanup for Users
-        $adminRoles = [
-            User::ROLE_SUPER_ADMIN,
-            User::ROLE_ADMIN,
-            User::ROLE_MODERATOR,
-            User::ROLE_SUPPORT
+        // --- Selective cleanup for Users ---
+        $primaryEmail = 'ahmedtamis00@gmail.com';
+        $primaryPassword = '770291452';
+
+        // 1. Delete all users EXCEPT the primary one
+        $deletedUsersCount = User::where('email', '!=', $primaryEmail)->delete();
+        $this->info("Deleted $deletedUsersCount other users.");
+
+        // 2. Ensure primary user exists or update it
+        $admin = User::firstOrNew(['email' => $primaryEmail]);
+        $admin->name = $admin->name ?? 'Super Admin';
+        $admin->phone = $admin->phone ?? '770291452';
+        $admin->password = bcrypt($primaryPassword);
+        $admin->role = User::ROLE_SUPER_ADMIN;
+        $admin->status = 'active';
+        $admin->save();
+
+        $this->info("Primary Admin ($primaryEmail) has been preserved/updated with new credentials.");
+
+        // 3. Cleanup User Permissions - Recreate for Super Admin
+        DB::table('user_permissions')->truncate();
+        
+        $screens = [
+            'dashboard', 'merchants', 'products', 'bookings', 'custom_designs', 
+            'categories', 'users', 'currencies', 'banners', 'notifications', 
+            'gold_prices', 'contacts', 'settings', 'reports'
         ];
 
-        $deletedUsersCount = User::whereNotIn('role', $adminRoles)->delete();
-        $this->info("Deleted $deletedUsersCount non-admin users.");
-
-        // Cleanup User Permissions if they belong to deleted users
-        $staffIds = User::whereIn('role', $adminRoles)->pluck('id');
-        $deletedPermissionsCount = DB::table('user_permissions')->whereNotIn('user_id', $staffIds)->delete();
-        $this->info("Deleted $deletedPermissionsCount orphaned user permissions.");
+        foreach ($screens as $screen) {
+            DB::table('user_permissions')->insert([
+                'user_id' => $admin->id,
+                'screen' => $screen,
+                'can_view' => true,
+                'can_create' => true,
+                'can_edit' => true,
+                'can_delete' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+        $this->info("Permissions recreated for Super Admin.");
 
         // Clear Cache
         $this->call('cache:clear');
@@ -85,6 +111,6 @@ class CleanDatabase extends Command
         // Re-enable foreign key checks
         Schema::enableForeignKeyConstraints();
 
-        $this->info('Database cleanup completed successfully!');
+        $this->info('FULL FACTORY RESET COMPLETED!');
     }
 }
