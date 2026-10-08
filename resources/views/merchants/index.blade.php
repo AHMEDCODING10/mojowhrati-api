@@ -107,7 +107,7 @@
                             <i data-lucide="eye" class="w-4 h-4 relative z-10 group-hover/btn:rotate-6 transition-transform"></i>
                             <span class="relative z-10">{{ __('التفاصيل الكاملة') }}</span>
                         </a>
-                        <form action="{{ route('merchants.destroy', $merchant->id) }}" method="POST" class="flex-shrink-0" onsubmit="return confirm('{{ __('حظر التاجر؟') }}')">
+                        <form action="{{ route('merchants.destroy', $merchant->id) }}" method="POST" class="flex-shrink-0" onsubmit="return confirmAction(this, '{{ __('هل أنت متأكد من حذف أو حظر حساب التاجر هذا؟') }}', 'تأكيد حظر التاجر')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="p-4 bg-rose-500/5 border border-rose-500/10 rounded-2xl text-rose-500/40 hover:bg-rose-500 hover:text-white transition-all duration-300 shadow-sm hover:shadow-rose-500/20">

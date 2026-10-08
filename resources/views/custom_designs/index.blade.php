@@ -75,7 +75,7 @@
                                     <a href="{{ route('custom_designs.show', $design->id) }}" class="p-2.5 bg-card border border-main rounded-xl text-muted/40 hover:text-gold transition-all" title="{{ __('عرض') }}">
                                         <i data-lucide="eye" class="w-4 h-4"></i>
                                     </a>
-                                    <form action="{{ route('custom_designs.destroy', $design->id) }}" method="POST" onsubmit="return confirm('{{ __('حذف الطلب؟') }}')">
+                                    <form action="{{ route('custom_designs.destroy', $design->id) }}" method="POST" onsubmit="return confirmAction(this, '{{ __('هل أنت متأكد من حذف طلب التصميم الخاص هذا؟') }}', 'تأكيد حذف الطلب')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="p-2.5 bg-card border border-main rounded-xl text-muted/40 hover:text-rose-500 transition-all">

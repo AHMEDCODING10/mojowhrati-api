@@ -124,7 +124,7 @@
                 </form>
             @endif
             <form action="{{ route('notifications.destroy', $notification->id) }}" method="POST"
-                  onsubmit="return confirm('{{ __('حذف هذا الإشعار؟') }}')">
+                  onsubmit="return confirmAction(this, '{{ __('هل أنت متأكد من حذف هذا الإشعار؟') }}', 'تأكيد الحذف')">
                 @csrf
                 @method('DELETE')
                 <button type="submit"
