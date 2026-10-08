@@ -209,29 +209,32 @@
     <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.16.1/dist/echo.iife.js"></script>
     <script>
         (function () {
-            var reverbKey    = '{{ config('broadcasting.connections.reverb.key', 'z2weyntpqmksubfi6enb') }}';
-            var reverbHost   = '{{ config('broadcasting.connections.reverb.options.host', 'mojowhrati-api.onrender.com') }}';
-            var reverbScheme = '{{ config('broadcasting.connections.reverb.options.scheme', 'https') }}';
+            var reverbKey    = '{{ config('broadcasting.connections.reverb.key') }}';
+            var reverbHost   = '{{ config('broadcasting.connections.reverb.options.host') }}';
+            var reverbPort   = parseInt('{{ config('broadcasting.connections.reverb.options.port') }}') || 8080;
+            var reverbScheme = '{{ config('broadcasting.connections.reverb.options.scheme') }}';
             var forceTLS     = (reverbScheme === 'https');
-            var wsPort       = forceTLS ? 443 : 80;
+            var wsPort       = forceTLS ? 443 : reverbPort;
 
-            if (!reverbKey) {
-                console.warn('[Echo] REVERB_APP_KEY is empty. WebSocket disabled.');
+            if (!reverbKey || !reverbHost) {
                 return;
             }
 
             window.Pusher = Pusher;
-            window.Echo = new Echo({
-                broadcaster:       'reverb',
-                key:               reverbKey,
-                wsHost:            reverbHost,
-                wsPort:            wsPort,
-                wssPort:           wsPort,
-                forceTLS:          forceTLS,
-                enabledTransports: ['ws', 'wss'],
-            });
-
-            console.log('[Echo] Connecting to Reverb:', reverbHost, '| Key:', reverbKey, '| TLS:', forceTLS);
+            try {
+                window.Echo = new Echo({
+                    broadcaster:       'reverb',
+                    key:               reverbKey,
+                    wsHost:            reverbHost,
+                    wsPort:            wsPort,
+                    wssPort:           wsPort,
+                    forceTLS:          forceTLS,
+                    enabledTransports: ['ws', 'wss'],
+                });
+                console.log('[Echo] Connecting to Reverb:', reverbHost + ':' + wsPort, '| Key:', reverbKey);
+            } catch (err) {
+                console.warn('[Echo] Reverb WebSocket skipped:', err);
+            }
 
             // Global Notification Badge Listener
             @auth
@@ -281,6 +284,7 @@
             @endauth
         })();
     </script>
+    @include('layouts.partials.master-password-modal')
     @stack('scripts')
 </body>
 

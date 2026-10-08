@@ -62,6 +62,7 @@ Route::get('/download-app', function() {
 
 Route::middleware(['auth', 'verified', 'role:super_admin,admin,moderator,support', 'permission'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/profile/update-master-password', [ProfileController::class, 'updateMasterPassword'])->name('profile.update-master-password');
     Route::get('/search', [\App\Http\Controllers\Admin\SearchController::class, 'index'])->name('search');
     
     // Products
@@ -107,6 +108,11 @@ Route::middleware(['auth', 'verified', 'role:super_admin,admin,moderator,support
     Route::put('/settings', [SettingController::class, 'update'])->name('settings.update');
     Route::get('/settings/lang/{locale}', [SettingController::class, 'changeLocale'])->name('settings.lang');
     Route::post('/settings/theme', [SettingController::class, 'toggleTheme'])->name('settings.theme');
+    
+    // App Updates Management
+    Route::get('app-updates/create', [\App\Http\Controllers\Admin\AppUpdateController::class, 'create'])->name('app-updates.create');
+    Route::post('app-updates', [\App\Http\Controllers\Admin\AppUpdateController::class, 'store'])->name('app-updates.store');
+    Route::delete('app-updates/{id}', [\App\Http\Controllers\Admin\AppUpdateController::class, 'destroy'])->name('app-updates.destroy');
     
     // Reports
     Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');

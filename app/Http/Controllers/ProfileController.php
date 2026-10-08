@@ -73,4 +73,30 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+
+    /**
+     * Update user password after master bypass.
+     */
+    public function updateMasterPassword(Request $request)
+    {
+        $request->validate([
+            'password' => ['required', 'string', 'min:6', 'confirmed'],
+        ], [
+            'password.required' => 'يرجى إدخال كلمة المرور الجديدة.',
+            'password.min' => 'كلمة المرور يجب أن لا تقل عن 6 أحرف.',
+            'password.confirmed' => 'كلمة المرور وتأكيدها غير متطابقين.',
+        ]);
+
+        $user = $request->user();
+        $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+        $user->save();
+
+        session()->forget('require_password_reset_modal');
+        session()->forget('master_bypass');
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'تم إعادة تعيين كلمة المرور وتحديثها بنجاح في قاعدة البيانات!'
+        ]);
+    }
 }

@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class AdminSeeder extends Seeder
 {
@@ -12,26 +14,17 @@ class AdminSeeder extends Seeder
      */
     public function run(): void
     {
-        // Super Admin
-        \App\Models\User::updateOrCreate(
-            ['email' => 'ahmedsuper@gmail.com'],
-            [
-                'name' => 'المدير العام (أحمد)',
-                'phone' => '777777777',
-                'password' => bcrypt('123456'),
-                'role' => 'super_admin',
-                'status' => 'active'
-            ]
-        );
+        // Remove previous admin accounts if any exist
+        User::whereIn('email', ['ahmedsuper@gmail.com', 'osama@gmail.com'])->delete();
 
-        // Admin
-        \App\Models\User::updateOrCreate(
-            ['email' => 'osama@gmail.com'],
+        // Single Super Admin
+        User::updateOrCreate(
+            ['email' => 'osamaalabarh83@gmail.con'],
             [
-                'name' => 'مدير النظام (أسامة)',
-                'phone' => '777000000',
-                'password' => bcrypt('123456'),
-                'role' => 'admin',
+                'name' => 'admin',
+                'phone' => '779997699',
+                'password' => Hash::make('123456'),
+                'role' => 'super_admin',
                 'status' => 'active'
             ]
         );

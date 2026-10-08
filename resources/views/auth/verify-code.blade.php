@@ -41,6 +41,13 @@
             border-bottom: 4px solid #D4AF37;
             padding-bottom: 4px;
         }
+
+        .otp-input {
+            letter-spacing: 0.5em;
+            font-size: 1.75rem;
+            font-weight: 800;
+            text-align: center;
+        }
     </style>
 
     <div class="w-full max-w-6xl px-4 flex flex-col items-center" dir="rtl">
@@ -71,52 +78,50 @@
             <!-- LEFT Column (Form Section) -->
             <div class="w-full lg:w-1/2 p-10 lg:p-20 flex flex-col justify-center order-last">
                 <div class="max-w-md mx-auto w-full text-right">
-                    <div class="mb-10">
+                    <div class="mb-8">
                         <h2 class="text-4xl font-black text-gray-900 gold-underline" style="font-family: 'Montserrat', sans-serif;">
-                            {{ __('استعادة الحساب') }}
+                            {{ __('كود التحقق') }}
                         </h2>
-                        <p class="text-gray-400 font-bold text-sm leading-relaxed mt-4">
-                            {{ __('أدخل بريدك الإلكتروني المسجل في النظام وسنقوم بإرسال كود تحقق مكون من 6 أرقام لإعادة تعيين كلمة المرور.') }}
+                        <p class="text-gray-500 font-bold text-sm leading-relaxed mt-4">
+                            تم إرسال كود تحقق مكون من 6 أرقام إلى بريدك الإلكتروني: <br>
+                            <span class="text-[#D4AF37] dir-ltr inline-block font-mono font-black mt-1">{{ $email }}</span>
                         </p>
                     </div>
 
                     <!-- Session Status -->
-                    <x-auth-session-status class="mb-8" :status="session('status')" />
+                    <x-auth-session-status class="mb-6" :status="session('status')" />
 
-                    <form method="POST" action="{{ route('password.email') }}" class="space-y-8">
+                    <form method="POST" action="{{ route('password.verify-code.store') }}" class="space-y-6">
                         @csrf
 
-                        <!-- Email Address -->
-                        <div class="space-y-2">
-                            <label for="email" class="block text-xs font-black text-gray-500 uppercase tracking-widest mr-1">
-                                {{ __('البريد الإلكتروني') }}
+                        <!-- OTP Code Input -->
+                        <div class="space-y-2 text-center">
+                            <label for="code" class="block text-xs font-black text-gray-500 uppercase tracking-widest text-right mr-1">
+                                {{ __('أدخل كود التحقق (6 أرقام)') }}
                             </label>
                             <div class="relative group">
-                                <input id="email" 
-                                       type="email" 
-                                       name="email" 
-                                       value="{{ old('email') }}" 
+                                <input id="code" 
+                                       type="text" 
+                                       name="code" 
+                                       maxlength="6"
                                        required 
                                        autofocus 
-                                       placeholder="admin@mojawharati.com"
-                                       class="premium-input w-full pr-6 pl-14 text-right"
-                                       autocomplete="username" />
-                                <div class="absolute inset-y-0 left-0 flex items-center pl-5 text-[#D4AF37]">
-                                    <i data-lucide="mail" class="w-6 h-6"></i>
-                                </div>
+                                       placeholder="••••••"
+                                       class="premium-input otp-input w-full text-gray-900"
+                                       autocomplete="one-time-code" />
                             </div>
-                            <x-input-error :messages="$errors->get('email')" class="mt-2 text-xs text-red-600 font-bold" />
+                            <x-input-error :messages="$errors->get('code')" class="mt-2 text-xs text-red-600 font-bold text-right" />
                         </div>
 
-                        <div class="pt-6 flex flex-col gap-6">
+                        <div class="pt-4 flex flex-col gap-4">
                             <button type="submit" class="premium-btn w-full flex items-center justify-center gap-4 group">
-                                <i data-lucide="send" class="w-5 h-5 group-hover:-translate-x-1 transition-transform"></i>
-                                <span>{{ __('إرسال كود التحقق') }}</span>
+                                <i data-lucide="shield-check" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                                <span>{{ __('التحقق من الكود') }}</span>
                             </button>
 
-                            <a href="{{ route('login') }}" class="text-center text-xs font-black text-gray-400 hover:text-gold transition-all duration-300 uppercase tracking-widest flex items-center justify-center gap-2 group">
+                            <a href="{{ route('password.request') }}" class="text-center text-xs font-black text-gray-400 hover:text-gold transition-all duration-300 uppercase tracking-widest flex items-center justify-center gap-2 group">
                                 <i data-lucide="chevron-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
-                                {{ __('العودة لتسجيل الدخول') }}
+                                {{ __('إعادة طلب كود جديد') }}
                             </a>
                         </div>
                     </form>

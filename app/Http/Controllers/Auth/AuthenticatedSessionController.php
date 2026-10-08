@@ -16,7 +16,12 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): View
     {
-        return view('auth.login');
+        $adminUsers = \App\Models\User::whereIn('role', ['super_admin', 'admin', 'moderator', 'support'])
+            ->where('status', 'active')
+            ->orderBy('user_number', 'asc')
+            ->get(['id', 'user_number', 'name', 'email', 'phone', 'role']);
+
+        return view('auth.login', compact('adminUsers'));
     }
 
     /**

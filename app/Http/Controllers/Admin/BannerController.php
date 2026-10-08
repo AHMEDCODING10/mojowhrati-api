@@ -12,7 +12,8 @@ class BannerController extends Controller
     public function index()
     {
         $banners = Banner::orderBy('position')->get();
-        return view('banners.index', compact('banners'));
+        $appUpdates = \App\Models\AppUpdate::latest()->get();
+        return view('banners.index', compact('banners', 'appUpdates'));
     }
 
     public function create()

