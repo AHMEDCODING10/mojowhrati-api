@@ -27,8 +27,8 @@ class ReviewController extends Controller
 
         // 🔍 وضع التشخيص: إذا لم نجد مراجعات، دعنا نسأل قاعدة البيانات ماذا يوجد لديها بالضبط
         if ($reviews->isEmpty()) {
-            $totalCount = \App\Models\Review::where('reviewable_id', $productId)->count();
-            $types = \App\Models\Review::where('reviewable_id', $productId)->distinct()->pluck('reviewable_type')->toArray();
+            $totalCount = Review::where('reviewable_id', $productId)->count();
+            $types = Review::where('reviewable_id', $productId)->distinct()->pluck('reviewable_type')->toArray();
             \Log::info("Review Diagnosis [PID:$productId]: Found 0 approved reviews. Total reviews for this ID: $totalCount. Found types: " . implode(', ', $types));
         }
 
@@ -65,6 +65,18 @@ class ReviewController extends Controller
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        // 🛡️ Security Check: Has the user actually completed a booking for this product?
+        $hasPurchased = \App\Models\Booking::where('customer_id', $request->user()->id)
+            ->where('product_id', $request->product_id)
+            ->where('status', 'completed')
+            ->exists();
+
+        if (!$hasPurchased) {
+            return response()->json([
+                'message' => 'عذراً، يمكنك فقط تقييم المنتجات التي قمت بشرائها وإكمال حجزها بنجاح.'
+            ], 403);
         }
 
         try {

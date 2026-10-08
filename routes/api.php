@@ -104,6 +104,8 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
         Route::post('/categories', [CategoryController::class, 'store']);
         Route::delete('/categories/all', [CategoryController::class, 'deleteAll']);
         Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
+        // toggle is_active للأدمن
+        Route::patch('/categories/{id}/toggle', [CategoryController::class, 'toggle']);
     });
     Route::get('/test-notify', function () {
         event(new \App\Events\GlobalNotificationEvent([

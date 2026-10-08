@@ -56,14 +56,27 @@ class UpdateProductRequest extends FormRequest
         ];
     }
 
+    public function messages(): array
+    {
+        return [
+            'title.required' => 'يرجى إدخال عنوان المنتج.',
+            'description.required' => 'يرجى إدخال وصف المنتج.',
+            'weight.numeric' => 'الوزن يجب أن يكون رقماً.',
+            'category_id.exists' => 'القسم المختار غير موجود.',
+            'status.in' => 'حالة المنتج غير صالحة.',
+            'images.*.image' => 'يجب أن يكون الملف صورة.',
+            'images.*.max' => 'حجم الصورة يجب أن لا يتجاوز 5 ميجابايت.',
+        ];
+    }
+
     /**
      * Handle a failed validation attempt.
      */
     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([
-            'status' => 'error',
-            'message' => 'بيانات غير صالحة',
+            'success' => false,
+            'message' => 'يرجى التحقق من بيانات المنتج',
             'errors' => $validator->errors()
         ], 422));
     }

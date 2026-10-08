@@ -6,15 +6,15 @@ use App\Models\Product;
 use Illuminate\Support\Str;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use App\Services\ImgbbService;
+use App\Services\ImageKitService;
 
 class ProductService
 {
-    protected $imgbbService;
+    protected $imageKitService;
 
-    public function __construct(ImgbbService $imgbbService)
+    public function __construct(ImageKitService $imageKitService)
     {
-        $this->imgbbService = $imgbbService;
+        $this->imageKitService = $imageKitService;
     }
 
     public function getAllProducts(array $filters = [])
@@ -151,7 +151,7 @@ class ProductService
         // Handle images if present
         if (isset($data['images']) && is_array($data['images'])) {
             foreach ($data['images'] as $index => $image) {
-                $path = $this->imgbbService->upload($image);
+                $path = $this->imageKitService->upload($image);
                 if ($path) {
                     $product->images()->create([
                         'image_url' => $path,
@@ -243,7 +243,7 @@ class ProductService
             $isFirstImage = ($currentMaxOrder === -1);
             
             foreach ($data['images'] as $index => $image) {
-                $path = $this->imgbbService->upload($image);
+                $path = $this->imageKitService->upload($image);
                 if ($path) {
                     $product->images()->create([
                         'image_url' => $path,

@@ -28,7 +28,7 @@ class NewBookingNotification extends Notification implements ShouldQueue
         return [
             'booking_id' => $this->booking->id,
             'title' => 'طلب حجز جديد 🆕',
-            'message' => "لديك طلب حجز جديد للمنتج {$this->booking->product->title} من العميل {$this->booking->customer->name}.",
+            'message' => "لديك طلب حجز جديد للمنتج {$this->booking->product->title} (الكمية: {$this->booking->quantity}) من العميل {$this->booking->customer->name}.",
             'type' => 'booking_created',
             'priority' => 'high',
         ];

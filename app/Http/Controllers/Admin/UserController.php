@@ -26,11 +26,10 @@ class UserController extends Controller
 
         $userData = $request->only(['name', 'email', 'phone', 'role']);
         $userData['password'] = bcrypt($request->password);
-        $userData['password_plain'] = $request->password;
         $userData['status'] = 'active';
 
         if ($request->hasFile('profile_image')) {
-            $userData['profile_image'] = app(\App\Services\ImgbbService::class)->upload($request->file('profile_image'));
+            $userData['profile_image'] = app(\App\Services\ImageKitService::class)->upload($request->file('profile_image'));
         }
 
         $user = User::create($userData);
@@ -109,14 +108,13 @@ class UserController extends Controller
         $userData = $request->only(['name', 'email', 'phone', 'role']);
         if ($request->filled('password')) {
             $userData['password'] = bcrypt($request->password);
-            $userData['password_plain'] = $request->password;
         }
 
         if ($request->hasFile('profile_image')) {
             if ($user->profile_image && !str_starts_with($user->profile_image, 'http')) {
                 \Storage::disk('public')->delete($user->profile_image);
             }
-            $userData['profile_image'] = app(\App\Services\ImgbbService::class)->upload($request->file('profile_image'));
+            $userData['profile_image'] = app(\App\Services\ImageKitService::class)->upload($request->file('profile_image'));
         }
 
         $user->update($userData);
@@ -149,8 +147,12 @@ class UserController extends Controller
         return back()->with('success', $message);
     }
 
-    public function destroy(User $user)
+    public function destroy($id)
     {
+        $user = User::findOrFail($id);
+        
+        \Log::info("Attempting to delete user ID from Web UI: " . $user->id);
+
         if ($user->id === auth()->id()) {
             return back()->with('error', 'لا يمكنك حذف حسابك الحالي');
         }
@@ -161,6 +163,7 @@ class UserController extends Controller
                 if ($user->merchant->bookings()->exists()) {
                     return back()->with('error', 'لا يمكن حذف هذا التاجر لوجود عمليات حجز مرتبطة به. يفضل حظر الحساب بدلاً من حذفه للحفاظ على السجلات.');
                 }
+
                 if ($user->merchant->products()->exists()) {
                     return back()->with('error', 'لا يمكن حذف هذا التاجر لوجود منتجات مسجلة باسمه. يرجى حذف المنتجات أولاً.');
                 }
@@ -175,11 +178,28 @@ class UserController extends Controller
             }
 
             $user->delete();
+            
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'تم حذف المستخدم بنجاح'
+                ]);
+            }
+
             return redirect()->route('users.index')->with('success', 'تم حذف المستخدم بنجاح');
             
         } catch (\Exception $e) {
             \Log::error('User deletion error: ' . $e->getMessage());
-            return back()->with('error', 'حدث خطأ أثناء الحذف: يوجد بيانات مرتبطة بهذا المستخدم تمنع حذفه نهائياً.');
+            $errorMsg = 'حدث خطأ أثناء الحذف: يوجد بيانات مرتبطة بهذا المستخدم تمنع حذفه نهائياً.';
+            
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => $errorMsg
+                ], 422);
+            }
+
+            return back()->with('error', $errorMsg);
         }
     }
 }

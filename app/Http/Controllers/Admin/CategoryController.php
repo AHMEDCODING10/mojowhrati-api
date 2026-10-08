@@ -57,7 +57,7 @@ class CategoryController extends Controller
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = app(\App\Services\ImgbbService::class)->upload($request->file('image'));
+            $imagePath = app(\App\Services\ImageKitService::class)->upload($request->file('image'));
         }
 
         Category::create([
@@ -102,7 +102,7 @@ class CategoryController extends Controller
             if ($category->image && !str_starts_with($category->image, 'http')) {
                 Storage::disk('public')->delete($category->image);
             }
-            $data['image'] = app(\App\Services\ImgbbService::class)->upload($request->file('image'));
+            $data['image'] = app(\App\Services\ImageKitService::class)->upload($request->file('image'));
         }
 
         $category->update($data);

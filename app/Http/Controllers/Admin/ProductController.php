@@ -91,7 +91,8 @@ class ProductController extends Controller
         $product = \App\Models\Product::findOrFail($id);
         $categories = \App\Models\Category::all();
         $merchants = \App\Models\Merchant::all();
-        return view('products.edit', compact('product', 'categories', 'merchants'));
+        $materials = \App\Models\Material::all();
+        return view('products.edit', compact('product', 'categories', 'merchants', 'materials'));
     }
 
     public function update(Request $request, $id)

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Booking extends Model
 {
     protected $fillable = [
-        'product_id', 'customer_id', 'merchant_id', 'status', 'expires_at',
+        'product_id', 'quantity', 'customer_id', 'merchant_id', 'status', 'expires_at',
         'contact_visible', 'customer_notes', 'merchant_notes', 'total_price', 'paid_amount',
         'rejection_reason', 'rejected_at', 'confirmed_at', 'completed_at',
     ];
@@ -21,7 +21,7 @@ class Booking extends Model
 
     public function product()
     {
-        return $this->belongsTo(Product::class, 'product_id');
+        return $this->belongsTo(Product::class, 'product_id')->withTrashed();
     }
 
     public function customer()

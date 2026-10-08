@@ -4,11 +4,12 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Services\ProductService;
-use App\Services\ImgbbService;
+use App\Services\ImageKitService;
 use App\Http\Requests\Api\V1\StoreProductRequest;
 use App\Http\Requests\Api\V1\UpdateProductRequest;
 use App\Http\Resources\Api\V1\ProductResource;
 use Illuminate\Http\Request;
+use App\Models\Product;
 
 class ProductController extends Controller
 {
@@ -29,6 +30,8 @@ class ProductController extends Controller
     {
         try {
             $product = $this->productService->getProductBySlug($slug);
+            // Increment views_count atomically (avoids race conditions)
+            $product->increment('views_count');
             return new ProductResource($product);
         } catch (\Exception $e) {
             return $this->error('المنتج غير موجود', 404);
@@ -48,7 +51,7 @@ class ProductController extends Controller
     public function update(UpdateProductRequest $request, $id)
     {
         $user = $request->user();
-        $product = \App\Models\Product::find($id);
+        $product = Product::find($id);
 
         if (!$product) {
             return $this->error('المنتج غير موجود', 404);
@@ -73,7 +76,7 @@ class ProductController extends Controller
             return $this->error('غير مصرح لك بحذف المنتجات', 403);
         }
 
-        $product = \App\Models\Product::find($id);
+        $product = Product::find($id);
 
         if (!$product) {
             return $this->error('المنتج غير موجود', 404);

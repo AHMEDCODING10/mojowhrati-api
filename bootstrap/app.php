@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'broadcasting/auth',
         ]);
         $middleware->web(append: [
+            \App\Http\Middleware\ForceCspHeader::class,
             \App\Http\Middleware\SetLocale::class,
             \App\Http\Middleware\CheckUserStatus::class,
             \App\Http\Middleware\TrackVisitors::class,

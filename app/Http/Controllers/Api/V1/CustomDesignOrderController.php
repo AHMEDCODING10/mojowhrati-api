@@ -7,64 +7,64 @@ use Illuminate\Http\Request;
 
 use App\Models\CustomDesignOrder;
 use App\Models\Merchant;
-use App\Services\ImgbbService;
+use App\Services\ImageKitService;
 use Illuminate\Support\Facades\Validator;
 use App\Events\NewNotificationEvent;
 
+use App\Http\Resources\Api\V1\CustomDesignResource;
+
 class CustomDesignOrderController extends Controller
 {
-    protected $imgbbService;
+    protected $imageKitService;
 
-    public function __construct(ImgbbService $imgbbService)
+    public function __construct(ImageKitService $imageKitService)
     {
-        $this->imgbbService = $imgbbService;
+        $this->imageKitService = $imageKitService;
     }
+    
     public function index(Request $request)
     {
         $user = $request->user();
-        $orders = CustomDesignOrder::where('user_id', $user->id)->latest()->get();
+        $orders = CustomDesignOrder::with('merchant')->where('user_id', $user->id)->latest()->get();
         
-        // Append full image_url so the Flutter app can display the design image
-        $orders->transform(function ($order) {
-            if ($order->image_path) {
-                $order->image_url = image_url($order->image_path);
-            } else {
-                $order->image_url = null;
-            }
-            return $order;
-        });
-        
-        return response()->json(['data' => $orders]);
+        return $this->success(CustomDesignResource::collection($orders));
     }
 
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'description' => 'required|string',
-            'budget'      => 'nullable|numeric',
+            'budget'      => 'nullable|string', // Changed to string to handle empty inputs safely, then cast manually
             'purity'      => 'nullable|string',
-            'weight'      => 'nullable|numeric',
+            'weight'      => 'nullable|string', // Changed to string
             'merchant_id' => 'required|exists:merchants,id',
-            'reference_image' => 'nullable|image|max:5120',
+            'reference_image' => 'nullable|image|max:10240', // Increased size to 10MB
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            return $this->error('بيانات غير صالحة', 422, $validator->errors());
         }
 
-        $data = $request->only(['description', 'budget', 'purity', 'weight', 'merchant_id']);
-        $data['user_id'] = $request->user()->id;
-        $data['status']  = 'pending';
+        $data = [
+            'description' => $request->description,
+            'budget'      => $request->budget ?: null,
+            'purity'      => $request->purity,
+            'weight'      => $request->weight ?: null,
+            'merchant_id' => $request->merchant_id,
+            'user_id'     => $request->user()->id,
+            'status'      => 'pending',
+        ];
 
         if ($request->hasFile('reference_image')) {
-            $data['image_path'] = $this->imgbbService->upload($request->file('reference_image'));
+            $data['image_path'] = $this->imageKitService->upload($request->file('reference_image'));
         }
 
         $order = CustomDesignOrder::create($data);
+        $order->load(['merchant', 'user']);
 
-        // Notify merchant via WebSocket (Wrapped in try-catch to prevent 500 error on socket failure)
+        // Notify merchant via WebSocket
         try {
-            $merchant = Merchant::with('user')->find($data['merchant_id']);
+            $merchant = $order->merchant;
             if ($merchant && $merchant->user) {
                 $payload = [
                     'title'    => 'طلب تصميم خاص جديد 🎨',
@@ -73,7 +73,6 @@ class CustomDesignOrderController extends Controller
                     'order_id' => $order->id,
                 ];
 
-                // 1. Save to Database for persistence in notification screen
                 $notification = \App\Models\Notification::create([
                     'user_id' => $merchant->user->id,
                     'notifiable_id' => $merchant->user->id,
@@ -85,7 +84,6 @@ class CustomDesignOrderController extends Controller
                     'priority' => 'high',
                 ]);
 
-                // 2. Real-time push (Include the DB ID so the client can handle it as a real record)
                 $payload['id'] = $notification->id;
                 $payload['created_at'] = $notification->created_at->toIso8601String();
                 
@@ -95,9 +93,6 @@ class CustomDesignOrderController extends Controller
             \Log::error("Notification failed for custom design: " . $e->getMessage());
         }
 
-        return response()->json([
-            'message' => 'تم إرسال طلب التصميم بنجاح',
-            'data'    => $order
-        ], 201);
+        return $this->success(new CustomDesignResource($order), 'تم إرسال طلب التصميم بنجاح', 201);
     }
 }

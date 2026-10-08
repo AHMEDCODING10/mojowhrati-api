@@ -18,24 +18,21 @@ class CustomDesignOrderController extends Controller
             return $this->error('Merchant profile not found', 404);
         }
 
-        $orders = CustomDesignOrder::with('user')
+        $orders = CustomDesignOrder::with(['user', 'merchant'])
             ->where('merchant_id', $merchant->id)
             ->latest()
-            ->get()
-            ->map(function ($order) {
-                $arr = $order->toArray();
-                $arr['image_url'] = $order->image_path
-                    ? \image_url($order->image_path)
-                    : null;
-                return $arr;
-            });
+            ->get();
 
-        return $this->success($orders);
+        return $this->success(\App\Http\Resources\Api\V1\CustomDesignResource::collection($orders));
     }
 
     public function updateStatus(Request $request, $id)
     {
         $merchant = $request->user()->merchant;
+        if (!$merchant) {
+            return $this->error('Merchant profile not found', 404);
+        }
+
         $order = CustomDesignOrder::where('id', $id)
             ->where('merchant_id', $merchant->id)
             ->firstOrFail();
@@ -45,6 +42,21 @@ class CustomDesignOrderController extends Controller
         ]);
 
         $order->update(['status' => $request->status]);
+
+        // Send Notification to Customer
+        $customer = $order->user;
+        if ($customer) {
+            $customer->notify(new \App\Notifications\CustomDesignStatusNotification($order));
+            
+            // Real-time broadcast
+            broadcast(new \App\Events\NewNotificationEvent($customer->id, [
+                'title' => 'تحديث على طلب التصميم الخاص',
+                'message' => 'تم تحديث حالة طلب التصميم الخاص بك.',
+                'type' => 'custom_design_status',
+                'order_id' => $order->id,
+                'status' => $request->status,
+            ]));
+        }
 
         return $this->success($order, 'Status updated successfully');
     }

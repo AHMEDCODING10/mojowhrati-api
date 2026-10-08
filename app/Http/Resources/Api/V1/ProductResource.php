@@ -30,8 +30,11 @@ class ProductResource extends JsonResource
             'status' => $this->status,
             'is_featured' => (bool) $this->is_featured,
             'stock_quantity' => (int) $this->stock_quantity,
+            'available_stock' => (int) $this->available_stock,
             'manage_stock' => (bool) $this->manage_stock,
-            'final_price' => (float) $this->final_price,
+            'views_count' => (int) $this->views_count,
+            'average_rating' => (float) $this->average_rating,
+            'reviews_count' => (int) $this->reviews_count,
             'created_at' => $this->created_at->toDateTimeString(),
             
             // Relationships

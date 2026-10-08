@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
+    use SoftDeletes;
     protected $fillable = [
         'merchant_id', 'category_id', 'material_id', 'title', 'slug', 'description', 
         'weight', 'stone_weight', 'purity', 'type', 'quantity', 'service_fee', 'manufacturer', 
@@ -52,6 +54,11 @@ class Product extends Model
         return $this->morphMany(Review::class, 'reviewable')->where('status', 'approved');
     }
 
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
+
     public function getAverageRatingAttribute()
     {
         try {
@@ -79,6 +86,17 @@ class Product extends Model
         }
     }
 
-    protected $appends = ['average_rating', 'reviews_count', 'image_url'];
+    public function getAvailableStockAttribute()
+    {
+        if (!$this->manage_stock) return 999;
+        
+        $pendingQuantity = $this->bookings()
+            ->where('status', 'pending')
+            ->sum('quantity');
+            
+        return max(0, $this->stock_quantity - (int)$pendingQuantity);
+    }
+
+    protected $appends = ['average_rating', 'reviews_count', 'image_url', 'available_stock'];
 }
 
