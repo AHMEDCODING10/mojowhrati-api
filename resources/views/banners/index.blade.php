@@ -167,7 +167,7 @@
                                 <i data-lucide="edit-3" class="w-4 h-4"></i>
                             </a>
                             
-                            <form action="{{ route('banners.destroy', $banner->id) }}" method="POST" onsubmit="return confirm('{{ __('حذف الإعلان؟') }}')">
+                            <form action="{{ route('banners.destroy', $banner->id) }}" method="POST" onsubmit="return confirmAction(this, '{{ __('هل أنت متأكد من حذف هذا الإعلان؟') }}', 'تأكيد حذف الإعلان')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="p-3 bg-card border border-main rounded-xl text-muted/40 hover:text-rose-500 transition-all">

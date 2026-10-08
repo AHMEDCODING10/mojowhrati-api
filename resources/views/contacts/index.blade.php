@@ -58,7 +58,7 @@
                                 <i data-lucide="{{ $contact->is_active ? 'shield-check' : 'shield-off' }}" class="w-4 h-4"></i>
                             </button>
                         </form>
-                        <form action="{{ route('contacts.destroy', $contact->id) }}" method="POST" onsubmit="return confirm('{{ __('هل أنت متأكد من الحذف؟') }}')">
+                        <form action="{{ route('contacts.destroy', $contact->id) }}" method="POST" onsubmit="return confirmAction(this, '{{ __('هل أنت متأكد من مسح وسيلة التواصل هذه؟') }}', 'تأكيد الحذف')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" 

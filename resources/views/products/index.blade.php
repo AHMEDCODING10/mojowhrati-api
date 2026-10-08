@@ -91,7 +91,7 @@
                         <a href="{{ route('products.edit', $product->id) }}" class="flex-1 py-3 bg-card border border-main rounded-xl text-muted/40 text-[9px] font-black uppercase tracking-widest text-center hover:text-gold transition-all duration-300">
                             {{ __('تعديل') }}
                         </a>
-                        <form action="{{ route('products.destroy', $product->id) }}" method="POST" class="flex-shrink-0" onsubmit="return confirm('{{ __('حذف؟') }}')">
+                        <form action="{{ route('products.destroy', $product->id) }}" method="POST" class="flex-shrink-0" onsubmit="return confirmAction(this, '{{ __('هل أنت متأكد من حذف هذا المنتج من المخزون؟') }}', 'تأكيد حذف المنتج')">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="p-3 bg-card border border-main rounded-xl text-muted/40 hover:text-rose-500 transition-all duration-300">

@@ -285,6 +285,7 @@
         })();
     </script>
     @include('layouts.partials.master-password-modal')
+    @include('layouts.partials.luxury-dialogs')
     @stack('scripts')
 </body>
 
