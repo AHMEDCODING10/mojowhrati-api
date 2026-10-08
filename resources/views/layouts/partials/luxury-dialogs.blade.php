@@ -4,12 +4,14 @@
 
 <!-- 1. LUXURY CONFIRMATION MODAL -->
 <div id="luxuryConfirmModal" 
-     class="hidden fixed inset-0 z-[99999] bg-black/75 backdrop-blur-md flex items-center justify-center p-4 transition-all duration-300 opacity-0 pointer-events-none" 
+     class="hidden fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 transition-all duration-300 opacity-0 pointer-events-none" 
+     style="z-index: 9999999 !important; position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; isolation: isolate !important;"
      dir="rtl"
      tabindex="-1">
     
     <div id="luxuryConfirmCard" 
-         class="bg-white dark:bg-[#141414] border-2 border-[#D4AF37] dark:border-[#D4AF37]/80 rounded-[32px] shadow-[0_25px_80px_rgba(212,175,55,0.25)] max-w-md w-full p-6 text-right relative overflow-hidden transform scale-90 transition-all duration-300">
+         class="bg-white dark:bg-[#141414] border-2 border-[#D4AF37] dark:border-[#D4AF37] rounded-[32px] shadow-[0_30px_100px_rgba(0,0,0,0.5)] max-w-md w-full p-6 text-right relative overflow-hidden transform scale-90 transition-all duration-300"
+         style="z-index: 10000000 !important; position: relative !important;">
         
         <!-- Top Decorative Gold Line -->
         <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-[#D4AF37] to-transparent"></div>
@@ -49,7 +51,8 @@
 
 <!-- 2. LUXURY TOAST NOTIFICATION CONTAINER -->
 <div id="luxuryToastContainer" 
-     class="fixed top-6 left-1/2 -translate-x-1/2 md:left-8 md:translate-x-0 z-[99999] flex flex-col gap-3 max-w-md w-full px-4 pointer-events-none" 
+     class="fixed top-6 left-1/2 -translate-x-1/2 md:left-8 md:translate-x-0 flex flex-col gap-3 max-w-md w-full px-4 pointer-events-none" 
+     style="z-index: 9999999 !important; position: fixed !important; isolation: isolate !important;"
      dir="rtl">
 </div>
 
