@@ -43,7 +43,7 @@
         }
     </style>
 
-    <div class="w-full max-w-6xl px-4 flex flex-col items-center">
+    <div class="w-full max-w-6xl px-4 flex flex-col items-center" dir="rtl">
         <!-- Main Dual-Column Card -->
         <div class="bg-white overflow-hidden rounded-[40px] shadow-[0_20px_80px_rgba(0,0,0,0.06)] flex flex-col lg:flex-row min-h-[550px] w-full">
             
@@ -71,12 +71,12 @@
             <!-- LEFT Column (Form Section) -->
             <div class="w-full lg:w-1/2 p-10 lg:p-20 flex flex-col justify-center order-last">
                 <div class="max-w-md mx-auto w-full text-right">
-                    <div class="mb-12">
+                    <div class="mb-10">
                         <h2 class="text-4xl font-black text-gray-900 gold-underline" style="font-family: 'Montserrat', sans-serif;">
                             {{ __('استعادة الحساب') }}
                         </h2>
                         <p class="text-gray-400 font-bold text-sm leading-relaxed mt-4">
-                            {{ __('نسيت كلمة المرور؟ لا بأس. أدخل بريدك الإلكتروني وسنرسل لك رابطاً حصرياً لاستعادة الوصول.') }}
+                            {{ __('أدخل بريدك الإلكتروني المسجل في النظام وسنقوم بإرسال كود تحقق مكون من 6 أرقام لإعادة تعيين كلمة المرور.') }}
                         </p>
                     </div>
 
@@ -102,16 +102,16 @@
                                        class="premium-input w-full pr-6 pl-14 text-right"
                                        autocomplete="username" />
                                 <div class="absolute inset-y-0 left-0 flex items-center pl-5 text-[#D4AF37]">
-                                    <i data-lucide="gem" class="w-6 h-6"></i>
+                                    <i data-lucide="mail" class="w-6 h-6"></i>
                                 </div>
                             </div>
-                            <x-input-error :messages="$errors->get('email')" class="mt-2 text-xs" />
+                            <x-input-error :messages="$errors->get('email')" class="mt-2 text-xs text-red-600 font-bold" />
                         </div>
 
                         <div class="pt-6 flex flex-col gap-6">
                             <button type="submit" class="premium-btn w-full flex items-center justify-center gap-4 group">
                                 <i data-lucide="send" class="w-5 h-5 group-hover:-translate-x-1 transition-transform"></i>
-                                <span>{{ __('إرسال رابط الاستعادة') }}</span>
+                                <span>{{ __('إرسال كود التحقق') }}</span>
                             </button>
 
                             <a href="{{ route('login') }}" class="text-center text-xs font-black text-gray-400 hover:text-gold transition-all duration-300 uppercase tracking-widest flex items-center justify-center gap-2 group">

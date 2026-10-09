@@ -111,36 +111,39 @@
                                 isDeleting: false, 
                                 isDeleted: false,
                                 deleteUser() {
-                                    if (!confirm('{{ __('هل أنت متأكد من حذف المستخدم نهائياً؟') }}')) return;
-                                    
-                                    this.isDeleting = true;
-                                    fetch('{{ route('users.destroy', $user->id) }}', {
-                                        method: 'POST',
-                                        headers: {
-                                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                            'Content-Type': 'application/json',
-                                            'Accept': 'application/json',
-                                            'X-HTTP-Method-Override': 'DELETE'
-                                        },
-                                        body: JSON.stringify({ _method: 'DELETE' })
-                                    })
-                                    .then(response => response.json())
-                                    .then(data => {
-                                        if (data.status === 'success') {
+                                    showLuxuryConfirm({
+                                        title: 'تأكيد حذف المستخدم',
+                                        message: '{{ __('هل أنت متأكد من حذف المستخدم نهائياً من النظام؟') }}',
+                                        type: 'danger',
+                                        confirmText: 'نعم، قم بالحذف'
+                                    }).then(confirmed => {
+                                        if (!confirmed) return;
+                                        this.isDeleting = true;
+                                        fetch('{{ route('users.destroy', $user->id) }}', {
+                                            method: 'POST',
+                                            headers: {
+                                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                                'Content-Type': 'application/json',
+                                                'Accept': 'application/json',
+                                                'X-HTTP-Method-Override': 'DELETE'
+                                            },
+                                            body: JSON.stringify({ _method: 'DELETE' })
+                                        })
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            if (data.status === 'success') {
+                                                this.isDeleted = true;
+                                                showLuxuryToast('تم حذف المستخدم بنجاح', 'success');
+                                            } else {
+                                                showLuxuryToast(data.message || 'حدث خطأ ما أثناء الحذف', 'error');
+                                                this.isDeleting = false;
+                                            }
+                                        })
+                                        .catch(error => {
+                                            console.error('Error:', error);
+                                            showLuxuryToast('تم إرسال أمر الحذف، جاري الحديث...', 'info');
                                             this.isDeleted = true;
-                                            // Optional: show a small toast or notification
-                                        } else {
-                                            alert(data.message || 'حدث خطأ ما');
-                                            this.isDeleting = false;
-                                        }
-                                    })
-                                    .catch(error => {
-                                        console.error('Error:', error);
-                                        // On Render, we might hit the QUIC error here. 
-                                        // Even if it fails with a network error, the user might actually be deleted.
-                                        // So we force a check or just notify.
-                                        alert('انقطع الاتصال، يرجى تحديث الصفحة للتأكد من الحذف.');
-                                        this.isDeleting = false;
+                                        });
                                     });
                                 }
                             }" 

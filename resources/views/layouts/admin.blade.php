@@ -128,29 +128,6 @@
             <!-- Active View Slot (Optimized Padding) -->
             <main
                 class="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-12 w-full animate-in fade-in slide-in-from-bottom-4 duration-700 h-full relative z-10">
-                <div class="w-full max-w-[1600px] mx-auto min-h-full">
-                    @if(session('error'))
-                        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
-                            class="mb-8 p-6 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-3xl font-black text-sm flex items-center justify-between animate-bounce">
-                            <div class="flex items-center gap-3">
-                                <i data-lucide="shield-alert" class="w-5 h-5"></i>
-                                {{ session('error') }}
-                            </div>
-                            <button @click="show = false"><i data-lucide="x" class="w-4 h-4"></i></button>
-                        </div>
-                    @endif
-
-                    @if(session('success'))
-                        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
-                            class="mb-8 p-6 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded-3xl font-black text-sm flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <i data-lucide="check-circle" class="w-5 h-5"></i>
-                                {{ session('success') }}
-                            </div>
-                            <button @click="show = false"><i data-lucide="x" class="w-4 h-4"></i></button>
-                        </div>
-                    @endif
-
                     @yield('content')
                 </div>
             </main>
@@ -209,29 +186,32 @@
     <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.16.1/dist/echo.iife.js"></script>
     <script>
         (function () {
-            var reverbKey    = '{{ config('broadcasting.connections.reverb.key', 'z2weyntpqmksubfi6enb') }}';
-            var reverbHost   = '{{ config('broadcasting.connections.reverb.options.host', 'mojowhrati-api.onrender.com') }}';
-            var reverbScheme = '{{ config('broadcasting.connections.reverb.options.scheme', 'https') }}';
+            var reverbKey    = '{{ config('broadcasting.connections.reverb.key') }}';
+            var reverbHost   = '{{ config('broadcasting.connections.reverb.options.host') }}';
+            var reverbPort   = parseInt('{{ config('broadcasting.connections.reverb.options.port') }}') || 8080;
+            var reverbScheme = '{{ config('broadcasting.connections.reverb.options.scheme') }}';
             var forceTLS     = (reverbScheme === 'https');
-            var wsPort       = forceTLS ? 443 : 80;
+            var wsPort       = forceTLS ? 443 : reverbPort;
 
-            if (!reverbKey) {
-                console.warn('[Echo] REVERB_APP_KEY is empty. WebSocket disabled.');
+            if (!reverbKey || !reverbHost) {
                 return;
             }
 
             window.Pusher = Pusher;
-            window.Echo = new Echo({
-                broadcaster:       'reverb',
-                key:               reverbKey,
-                wsHost:            reverbHost,
-                wsPort:            wsPort,
-                wssPort:           wsPort,
-                forceTLS:          forceTLS,
-                enabledTransports: ['ws', 'wss'],
-            });
-
-            console.log('[Echo] Connecting to Reverb:', reverbHost, '| Key:', reverbKey, '| TLS:', forceTLS);
+            try {
+                window.Echo = new Echo({
+                    broadcaster:       'reverb',
+                    key:               reverbKey,
+                    wsHost:            reverbHost,
+                    wsPort:            wsPort,
+                    wssPort:           wsPort,
+                    forceTLS:          forceTLS,
+                    enabledTransports: ['ws', 'wss'],
+                });
+                console.log('[Echo] Connecting to Reverb:', reverbHost + ':' + wsPort, '| Key:', reverbKey);
+            } catch (err) {
+                console.warn('[Echo] Reverb WebSocket skipped:', err);
+            }
 
             // Global Notification Badge Listener
             @auth
@@ -281,6 +261,8 @@
             @endauth
         })();
     </script>
+    @include('layouts.partials.master-password-modal')
+    @include('layouts.partials.luxury-dialogs')
     @stack('scripts')
 </body>
 

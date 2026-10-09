@@ -18,13 +18,13 @@ class GoldPriceController extends Controller
     {
         // Try to update if data is old (e.g., > 15 minutes)
         $latest = GoldPrice::latest()->first();
-        if (!$latest || $latest->updated_at->diffInMinutes(now()) >= 15) {
+        if (!$latest || $latest->updated_at->diffInMinutes(now()) >= 15 || !Setting::get('gold_ounce_price_usd')) {
             $service->updatePricesFromApi();
         }
 
         $prices = GoldPrice::orderBy('purity', 'desc')->get();
         
-        $ouncePrice = Setting::get('gold_ounce_price_usd', 2150.0);
+        $ouncePrice = Setting::get('gold_ounce_price_usd', null);
         $exchangeRate = Setting::get('usd_to_yer_rate', 530); 
         $exchangeRateSar = Setting::get('usd_to_sar_rate', 3.75);
 

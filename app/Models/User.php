@@ -77,12 +77,28 @@ class User extends Authenticatable
     }
 
 
+    protected static function booted(): void
+    {
+        static::creating(function ($user) {
+            if (empty($user->user_number)) {
+                $roleCategory = in_array($user->role, [self::ROLE_SUPER_ADMIN, self::ROLE_ADMIN, self::ROLE_MODERATOR, self::ROLE_SUPPORT]) ? 'staff' : $user->role;
+                if ($roleCategory === 'staff') {
+                    $maxNum = static::whereIn('role', [self::ROLE_SUPER_ADMIN, self::ROLE_ADMIN, self::ROLE_MODERATOR, self::ROLE_SUPPORT])->max('user_number') ?? 0;
+                } else {
+                    $maxNum = static::where('role', $user->role)->max('user_number') ?? 0;
+                }
+                $user->user_number = $maxNum + 1;
+            }
+        });
+    }
+
     /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
      */
     protected $fillable = [
+        'user_number',
         'name',
         'phone',
         'email',

@@ -16,7 +16,7 @@
         </div>
         
         <div class="flex flex-wrap items-center gap-5">
-            <form action="{{ route('categories.clear') }}" method="POST" onsubmit="return confirm('{{ __('تحذير: هذا سيقوم بمسح جميع الأقسام والارتباطات! هل أنت متأكد؟') }}')">
+            <form action="{{ route('categories.clear') }}" method="POST" onsubmit="return confirmAction(this, '{{ __('تحذير: هذا سيقوم بمسح جميع الأقسام والارتباطات! هل أنت متأكد؟') }}', 'تأكيد المسح الشامل')">
                 @csrf
                 <button type="submit" class="px-8 py-4 bg-rose-500/5 border border-rose-500/10 text-rose-500 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all duration-500">{{ __('مسح الكل') }}</button>
             </form>
@@ -29,11 +29,7 @@
         </div>
     </div>
 
-    @if(session('success'))
-    <div class="p-6 bg-emerald-500/5 border border-emerald-500/10 text-emerald-500 rounded-3xl font-black text-xs text-center animate-in fade-in slide-in-from-top-4 duration-700">
-        {{ session('success') }}
-    </div>
-    @endif
+
 
     <!-- Categories Grid (3 Columns) -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
@@ -67,7 +63,7 @@
                         <form action="{{ route('categories.destroy', $category->id) }}" method="POST">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="w-14 h-14 bg-rose-500/80 backdrop-blur-md text-white rounded-2xl flex items-center justify-center shadow-2xl hover:bg-rose-600 hover:scale-110 transition-all duration-500" onclick="return confirm('{{ __('تأكيد حذف الفئة؟') }}')">
+                            <button type="submit" class="w-14 h-14 bg-rose-500/80 backdrop-blur-md text-white rounded-2xl flex items-center justify-center shadow-2xl hover:bg-rose-600 hover:scale-110 transition-all duration-500" onclick="return confirmAction(this.form, '{{ __('هل أنت متأكد من حذف الفئة؟') }}', 'تأكيد الحذف')">
                                 <i data-lucide="trash-2" class="w-6 h-6"></i>
                             </button>
                         </form>

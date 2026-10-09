@@ -28,7 +28,7 @@ class AppServiceProvider extends ServiceProvider
             'product' => Product::class,
         ]);
 
-        if (config('app.env') === 'production') {
+        if (config('app.env') === 'production' && str_starts_with(config('app.url'), 'https://')) {
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
 

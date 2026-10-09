@@ -94,6 +94,7 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
     Route::get('/merchants', [MerchantController::class, 'index']);
     Route::get('/banners', [App\Http\Controllers\Api\V1\BannerController::class, 'index']);
     Route::get('/gold-prices', [App\Http\Controllers\Api\V1\GoldPriceController::class, 'index']);
+    Route::get('/app-update/latest', [App\Http\Controllers\Api\V1\AppUpdateApiController::class, 'latest']);
     Route::get('/contacts', [ContactController::class, 'index']);
     Route::get('/settings/contact', [ContactController::class, 'index']); // Sync for app compat
     Route::get('/settings/exchange-rates', [App\Http\Controllers\Api\V1\SettingsController::class, 'getExchangeRates']);

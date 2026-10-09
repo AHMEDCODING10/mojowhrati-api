@@ -22,17 +22,30 @@ Route::middleware('guest')->group(function () {
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
+    // 1. Step 1: Request Password Reset Code
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');
 
     Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
         ->name('password.email');
 
-    Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
-        ->name('password.reset');
+    // 2. Step 2: Verify 6-digit OTP Code
+    Route::get('forgot-password/verify-code', [PasswordResetLinkController::class, 'showVerifyCode'])
+        ->name('password.verify-code.show');
 
-    Route::post('reset-password', [NewPasswordController::class, 'store'])
+    Route::post('forgot-password/verify-code', [PasswordResetLinkController::class, 'verifyCode'])
+        ->name('password.verify-code.store');
+
+    // 3. Step 3: Enter New Password & Save to DB
+    Route::get('forgot-password/reset-password', [NewPasswordController::class, 'create'])
+        ->name('password.reset-form.show');
+
+    Route::post('forgot-password/reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
+
+    // Legacy fallback compatibility
+    Route::get('reset-password/{token}', [PasswordResetLinkController::class, 'create'])
+        ->name('password.reset');
 });
 
 Route::middleware('auth')->group(function () {

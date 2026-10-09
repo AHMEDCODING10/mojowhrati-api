@@ -117,28 +117,39 @@
                         @csrf
 
                         <!-- Email Address -->
+                        <!-- Username Address Field -->
                         <div class="space-y-3 text-right">
-                            <label for="email" class="block text-xs font-black text-gray-500 uppercase tracking-widest mr-1">
-                                {{ __('البريد الإلكتروني') }}
-                            </label>
+                            <div class="flex items-center justify-between">
+                                <label for="email" class="block text-xs font-black text-gray-500 uppercase tracking-widest mr-1">
+                                    {{ __('اسم المستخدم') }}
+                                </label>
+                                <span class="text-[10px] text-[#D4AF37] font-bold cursor-pointer hover:underline" onclick="openUserSelectModal()" title="انقر مرتين على الحقل أو هنا للبحث السريع">
+                                    (انقر مرتين للبحث) 🔍
+                                </span>
+                            </div>
                             <div class="relative group">
                                 <input id="email" 
-                                       type="email" 
+                                       type="text" 
                                        name="email" 
                                        value="{{ old('email') }}" 
                                        required 
                                        autofocus 
-                                       placeholder="admin@mojawharati.com"
-                                       class="premium-input w-full pr-6 pl-14 text-right"
+                                       ondblclick="openUserSelectModal()"
+                                       placeholder="أدخل اسم المستخدم أو الرقم الحسابي"
+                                       class="premium-input w-full pr-6 pl-14 text-right cursor-pointer"
                                        autocomplete="username" />
-                                <div class="absolute inset-y-0 left-0 flex items-center pl-5 text-[#D4AF37]">
-                                    <i data-lucide="gem" class="w-6 h-6"></i> 
-                                </div>
+                                <button type="button" 
+                                        onclick="openUserSelectModal()" 
+                                        tabindex="-1"
+                                        class="absolute inset-y-0 left-0 flex items-center pl-5 text-[#D4AF37] hover:scale-110 transition-transform"
+                                        title="انقر للبحث والاختيار السريع">
+                                    <i data-lucide="user-search" class="w-6 h-6"></i> 
+                                </button>
                             </div>
-                            <x-input-error :messages="$errors->get('email')" class="mt-2 text-xs" />
+                            <x-input-error :messages="$errors->get('email')" class="mt-2 text-xs text-red-600 font-bold" />
                         </div>
 
-                        <!-- Password -->
+                        <!-- Password Field -->
                         <div class="space-y-3 text-right">
                             <label for="password" class="block text-xs font-black text-gray-500 uppercase tracking-widest mr-1">
                                 {{ __('كلمة المرور') }}
@@ -149,13 +160,17 @@
                                        name="password"
                                        required 
                                        placeholder="••••••••"
-                                       class="premium-input w-full pr-6 pl-14 text-right"
+                                       class="premium-input w-full pr-6 pl-16 text-right"
                                        autocomplete="current-password" />
-                                <div class="absolute inset-y-0 left-0 flex items-center pl-5 text-gray-300 group-focus-within:text-[#D4AF37] transition-colors">
-                                    <i data-lucide="lock" class="w-6 h-6"></i> 
-                                </div>
+                                <button type="button" 
+                                        onclick="togglePasswordVisibility()" 
+                                        tabindex="-1"
+                                        class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 hover:text-[#D4AF37] focus:outline-none transition-colors"
+                                        title="إظهار / إخفاء كلمة المرور">
+                                    <i id="togglePasswordIcon" data-lucide="eye" class="w-5 h-5"></i>
+                                </button>
                             </div>
-                            <x-input-error :messages="$errors->get('password')" class="mt-2 text-xs" />
+                            <x-input-error :messages="$errors->get('password')" class="mt-2 text-xs text-red-600 font-bold" />
                         </div>
 
                         <!-- Remember Me & Forgot Password -->
@@ -175,7 +190,7 @@
                         </div>
 
                         <div class="pt-6">
-                            <button type="submit" class="premium-btn w-full flex items-center justify-center gap-4 group">
+                            <button type="submit" id="loginSubmitBtn" class="premium-btn w-full flex items-center justify-center gap-4 group">
                                 <i data-lucide="arrow-left" class="w-5 h-5 group-hover:-translate-x-1 transition-transform"></i>
                                 <span>{{ __('تسجيل الدخول') }}</span>
                             </button>
@@ -190,4 +205,187 @@
             © 2026 MOJAWHARATI.PRO. ALL RIGHTS RESERVED.
         </p>
     </div>
+
+    <!-- Quick User Search & Selection Modal -->
+    <div id="userSelectModal" class="hidden fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md flex items-center justify-center p-4" dir="rtl">
+        <div class="bg-white dark:bg-[#1A1A1A] border-2 border-[#D4AF37] rounded-[32px] shadow-[0_25px_80px_rgba(212,175,55,0.3)] max-w-lg w-full p-6 text-right relative overflow-hidden">
+            
+            <!-- Header -->
+            <div class="flex items-center justify-between border-b border-gray-100 dark:border-white/10 pb-4 mb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-[#D4AF37]/10 rounded-full flex items-center justify-center border border-[#D4AF37]">
+                        <i data-lucide="users" class="w-5 h-5 text-[#D4AF37]"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-black text-gray-900 dark:text-white" style="font-family: 'Almarai', sans-serif;">
+                            اختيار حساب الإدارة للوصول السريع
+                        </h3>
+                        <p class="text-xs text-gray-400 font-bold">
+                            ابحث باسم المستخدم أو بالرقم المتسلسل الحسابي
+                        </p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeUserSelectModal()" class="text-gray-400 hover:text-red-500 text-xl font-bold p-1">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Search Field -->
+            <div class="relative mb-4">
+                <input id="user_search_input" 
+                       type="text" 
+                       oninput="filterUserList()" 
+                       onkeydown="handleUserSearchKeydown(event)"
+                       placeholder="اكتب الحرف أو رقم الحساب للفلترة الحساسة..." 
+                       class="w-full bg-gray-50 dark:bg-black/40 border border-[#D4AF37]/50 rounded-xl pr-10 pl-4 py-3 text-sm font-bold text-gray-900 dark:text-white focus:border-[#D4AF37] outline-none" />
+                <div class="absolute inset-y-0 right-0 flex items-center pr-3 text-[#D4AF37]">
+                    <i data-lucide="search" class="w-4 h-4"></i>
+                </div>
+            </div>
+
+            <!-- User List Items -->
+            <div id="user_list_container" class="max-h-72 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+                <!-- Rendered dynamically via JS -->
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-gray-100 dark:border-white/10 flex items-center justify-between text-[11px] text-gray-400 font-bold">
+                <span>استخدم الأسهم ⬆️ ⬇️ للتنقل ثم <b>Enter</b> للاختيار</span>
+                <button type="button" onclick="closeUserSelectModal()" class="px-4 py-1.5 bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200">
+                    إلغاء
+                </button>
+            </div>
+        </div>
+    </div>
+
+    @php
+        $rawAdmins = isset($adminUsers) ? $adminUsers : \App\Models\User::whereIn('role', ['super_admin', 'admin', 'moderator', 'support'])->where('status', 'active')->orderBy('user_number', 'asc')->get(['id', 'user_number', 'name', 'email', 'phone', 'role']);
+    @endphp
+
+    <script>
+        const allAdminUsers = @json($rawAdmins);
+        let selectedIndex = 0;
+        let filteredUsers = [...allAdminUsers];
+
+        function togglePasswordVisibility() {
+            const passInput = document.getElementById('password');
+            const icon = document.getElementById('togglePasswordIcon');
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                icon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                passInput.type = 'password';
+                icon.setAttribute('data-lucide', 'eye');
+            }
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        function openUserSelectModal() {
+            document.getElementById('userSelectModal').classList.remove('hidden');
+            const searchInput = document.getElementById('user_search_input');
+            searchInput.value = '';
+            filterUserList();
+            setTimeout(() => searchInput.focus(), 100);
+        }
+
+        function closeUserSelectModal() {
+            document.getElementById('userSelectModal').classList.add('hidden');
+        }
+
+        function filterUserList() {
+            const query = document.getElementById('user_search_input').value.trim().toLowerCase();
+            if (!query) {
+                filteredUsers = [...allAdminUsers];
+            } else {
+                filteredUsers = allAdminUsers.filter(u => {
+                    const numStr = (u.user_number || u.id || '').toString();
+                    const nameStr = (u.name || '').toLowerCase();
+                    const emailStr = (u.email || '').toLowerCase();
+                    const phoneStr = (u.phone || '').toLowerCase();
+                    return numStr.includes(query) || nameStr.includes(query) || emailStr.includes(query) || phoneStr.includes(query);
+                });
+            }
+            selectedIndex = 0;
+            renderUserList();
+        }
+
+        function renderUserList() {
+            const container = document.getElementById('user_list_container');
+            container.innerHTML = '';
+
+            if (filteredUsers.length === 0) {
+                container.innerHTML = '<div class="p-6 text-center text-gray-400 text-xs font-bold">لا يوجد مستخدم يطابق نص البحث.</div>';
+                return;
+            }
+
+            filteredUsers.forEach((u, index) => {
+                const item = document.createElement('div');
+                const isSelected = index === selectedIndex;
+                item.className = `p-3.5 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
+                    isSelected 
+                        ? 'bg-[#D4AF37]/20 border-[#D4AF37] text-gray-900 dark:text-white shadow-sm' 
+                        : 'bg-gray-50 dark:bg-black/20 border-gray-100 dark:border-white/5 hover:border-[#D4AF37]/40'
+                }`;
+                
+                const roleBadge = u.role === 'super_admin' ? 'المدير العام' : (u.role === 'admin' ? 'مدير' : 'مشرف');
+
+                item.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="w-8 h-8 rounded-full bg-[#D4AF37] text-black font-black text-xs flex items-center justify-center shadow-sm">
+                            #${u.user_number || u.id}
+                        </span>
+                        <div>
+                            <p class="font-black text-sm text-gray-900 dark:text-white leading-tight">${u.name}</p>
+                            <p class="text-[11px] text-gray-500 dark:text-gray-400 font-bold">${u.email} ${u.phone ? '• ' + u.phone : ''}</p>
+                        </div>
+                    </div>
+                    <span class="text-[10px] font-black px-2.5 py-1 bg-[#D4AF37]/10 text-[#B88F3D] dark:text-[#E8D095] rounded-full border border-[#D4AF37]/30">
+                        ${roleBadge}
+                    </span>
+                `;
+
+                item.onclick = () => selectUser(index);
+                container.appendChild(item);
+            });
+
+            // Scroll selected item into view
+            const activeEl = container.children[selectedIndex];
+            if (activeEl) {
+                activeEl.scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        function handleUserSearchKeydown(e) {
+            if (filteredUsers.length === 0) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedIndex = (selectedIndex + 1) % filteredUsers.length;
+                renderUserList();
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedIndex = (selectedIndex - 1 + filteredUsers.length) % filteredUsers.length;
+                renderUserList();
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                selectUser(selectedIndex);
+            }
+        }
+
+        function selectUser(index) {
+            const user = filteredUsers[index];
+            if (!user) return;
+
+            const emailInput = document.getElementById('email');
+            emailInput.value = user.name || user.email;
+
+            closeUserSelectModal();
+
+            // Focus on password input immediately!
+            setTimeout(() => {
+                const passInput = document.getElementById('password');
+                passInput.focus();
+                passInput.select();
+            }, 100);
+        }
+    </script>
 </x-guest-layout>
