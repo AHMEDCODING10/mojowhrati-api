@@ -23,17 +23,7 @@
         </div>
     </div>
 
-    @if(session('success'))
-    <div class="p-6 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded-3xl font-black text-sm text-center animate-in fade-in slide-in-from-top-4 duration-700">
-        {{ session('success') }}
-    </div>
-    @endif
 
-    @if(session('error'))
-    <div class="p-6 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-3xl font-black text-sm text-center animate-in fade-in slide-in-from-top-4 duration-700">
-        {{ session('error') }}
-    </div>
-    @endif
 
     <!-- Merchants Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10" id="merchants-grid">

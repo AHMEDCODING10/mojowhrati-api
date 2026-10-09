@@ -26,12 +26,7 @@
         </button>
     </div>
 
-    @if(session('success'))
-    <div class="px-8 py-5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl font-black text-sm text-center shadow-lg shadow-emerald-500/5 animate-in fade-in slide-in-from-top-4 duration-700 flex items-center justify-center gap-3">
-        <i data-lucide="check-circle-2" class="w-5 h-5"></i>
-        {{ session('success') }}
-    </div>
-    @endif
+
 
     <!-- Contacts Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">

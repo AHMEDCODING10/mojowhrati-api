@@ -31,11 +31,7 @@
         </div>
     </div>
 
-    @if(session('success'))
-    <div class="p-6 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded-3xl font-black text-sm text-center">
-        {{ session('success') }}
-    </div>
-    @endif
+
 
     <!-- Search & Filter Bar (Minimalist) -->
     <div class="luxury-card p-4 border border-main/5 bg-main/5">
