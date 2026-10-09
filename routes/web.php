@@ -19,6 +19,31 @@ Route::get('/', function () {
     return redirect('/dashboard');
 });
 
+// Temporary Route to test deletion end-to-end
+Route::get('/debug-logs', function() {
+    try {
+        $user = \App\Models\User::create([
+            'name' => 'Test Delete',
+            'email' => 'testdelete_' . time() . '@example.com',
+            'phone' => '123456789' . rand(10,99),
+            'password' => bcrypt('password'),
+            'role' => 'customer',
+            'status' => 'active'
+        ]);
+        
+        $output = ['step1_create' => 'success', 'user_id' => $user->id];
+        
+        $res = $user->delete();
+        $output['step2_delete_res'] = $res;
+        
+        $exists = \App\Models\User::find($user->id);
+        $output['step3_still_exists'] = $exists !== null;
+        
+        return response()->json($output);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+    }
+});
 
 // Public Product Preview for QR Scans
 Route::get('/p/{id}', [\App\Http\Controllers\Web\ProductPreviewController::class, 'show'])->name('products.preview');
