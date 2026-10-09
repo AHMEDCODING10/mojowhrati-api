@@ -136,6 +136,13 @@ Route::middleware(['auth', 'verified', 'role:super_admin,admin,moderator,support
     Route::post('banners/{banner}/toggle', [BannerController::class, 'toggleStatus'])->name('banners.toggle');
     Route::resource('banners', BannerController::class);
 
+    // Promotions & Priority Placements
+    Route::get('promotions/requests', [\App\Http\Controllers\Admin\AdminPromotionRequestController::class, 'index'])->name('promotions.requests.index');
+    Route::post('promotions/requests/{promotionRequest}/approve', [\App\Http\Controllers\Admin\AdminPromotionRequestController::class, 'approve'])->name('promotions.requests.approve');
+    Route::post('promotions/requests/{promotionRequest}/reject', [\App\Http\Controllers\Admin\AdminPromotionRequestController::class, 'reject'])->name('promotions.requests.reject');
+    Route::post('promotions/{promotion}/toggle', [\App\Http\Controllers\Admin\PromotionController::class, 'toggleStatus'])->name('promotions.toggle');
+    Route::resource('promotions', \App\Http\Controllers\Admin\PromotionController::class);
+
     // Categories
     Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
     Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create');

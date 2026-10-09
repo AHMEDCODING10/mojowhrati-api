@@ -19,17 +19,7 @@
         </div>
     </div>
 
-    @if(session('success'))
-    <div class="px-8 py-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded-2xl font-black text-sm text-center shadow-lg shadow-emerald-500/5 animate-in fade-in slide-in-from-top-4 duration-700">
-        {{ session('success') }}
-    </div>
-    @endif
-
-    @if(session('error'))
-    <div class="px-8 py-4 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-2xl font-black text-sm text-center shadow-lg shadow-rose-500/5 animate-in fade-in slide-in-from-top-4 duration-700">
-        {{ session('error') }}
-    </div>
-    @endif
+    
 
     @if($errors->any())
     <div class="px-8 py-4 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-2xl font-black text-sm text-center shadow-lg shadow-rose-500/5 animate-in fade-in slide-in-from-top-4 duration-700">

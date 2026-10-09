@@ -139,4 +139,25 @@ class AuthController extends Controller
             return $this->error('حدث خطأ أثناء حذف الحساب: ' . $e->getMessage(), 500);
         }
     }
+
+    public function forceResetPassword(Request $request)
+    {
+        $request->validate([
+            'password' => 'required|string|min:8|confirmed',
+        ], [
+            'password.required' => 'يرجى إدخال كلمة المرور الجديدة.',
+            'password.min' => 'كلمة المرور يجب أن لا تقل عن 8 خانات.',
+            'password.confirmed' => 'تأكيد كلمة المرور غير متطابق.',
+        ]);
+
+        try {
+            $user = $request->user();
+            $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+            $user->save();
+
+            return $this->success(null, 'تم تحديث كلمة المرور الجديدة بنجاح');
+        } catch (\Exception $e) {
+            return $this->error($e->getMessage(), 422);
+        }
+    }
 }

@@ -20,13 +20,7 @@
         </div>
     </div>
 
-    <!-- Success Message -->
-    @if(session('success'))
-    <div class="max-w-4xl p-6 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded-3xl font-black text-sm text-center flex items-center justify-center gap-4">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-circle"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        {{ session('success') }}
-    </div>
-    @endif
+    
 
     <div class="max-w-5xl">
         <form action="{{ route('currencies.update') }}" method="POST" class="space-y-10">

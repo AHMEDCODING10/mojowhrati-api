@@ -91,14 +91,49 @@ class ProductService
             }
             // If status is not set, or set to 'all', the merchant sees everything (published, draft, out-of-stock)
         }
-        // If it IS the merchant owner, we don't add the stock > 0 constraint, 
-        // allowing them to see their 0-stock items for management.
+        // Active Promotions Priority Boost
+        $promotedProductIds = \App\Models\Promotion::active()
+            ->where('type', 'product')
+            ->pluck('target_id')
+            ->filter()
+            ->toArray();
+
+        $promotedMerchantIds = \App\Models\Promotion::active()
+            ->where('type', 'merchant_store')
+            ->pluck('merchant_id')
+            ->filter()
+            ->toArray();
+
+        $promotedCategoryIds = \App\Models\Promotion::active()
+            ->where('type', 'category')
+            ->pluck('target_id')
+            ->filter()
+            ->toArray();
+
+        if (!empty($promotedProductIds) || !empty($promotedMerchantIds) || !empty($promotedCategoryIds)) {
+            $pProdSql = !empty($promotedProductIds) ? implode(',', $promotedProductIds) : '0';
+            $pMerchSql = !empty($promotedMerchantIds) ? implode(',', $promotedMerchantIds) : '0';
+            $pCatSql = !empty($promotedCategoryIds) ? implode(',', $promotedCategoryIds) : '0';
+
+            $query->orderByRaw("
+                CASE 
+                    WHEN products.id IN ($pProdSql) THEN 1
+                    WHEN products.merchant_id IN ($pMerchSql) THEN 2
+                    WHEN products.category_id IN ($pCatSql) THEN 3
+                    ELSE 4
+                END ASC
+            ");
+        }
 
         $paginator = $query->latest()->paginate($filters['per_page'] ?? 15);
         
         // Privacy: Hide contact info from public product listings
         // Transform image URLs to use API route with CORS
-        $paginator->getCollection()->transform(function ($product) {
+        $paginator->getCollection()->transform(function ($product) use ($promotedProductIds, $promotedMerchantIds, $promotedCategoryIds) {
+            $product->is_promoted = in_array($product->id, $promotedProductIds) 
+                || in_array($product->merchant_id, $promotedMerchantIds) 
+                || in_array($product->category_id, $promotedCategoryIds);
+
             if ($product->merchant) {
                 // Ensure contact numbers are available, fallback to user phone if needed
                 $product->merchant->whatsapp_number = $product->merchant->whatsapp_number 

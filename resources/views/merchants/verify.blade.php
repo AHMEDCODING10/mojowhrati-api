@@ -27,11 +27,7 @@
         </div>
     </div>
 
-    @if(session('success'))
-    <div class="p-6 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 rounded-3xl font-black text-sm text-center animate-pulse">
-        {{ session('success') }}
-    </div>
-    @endif
+    
 
     {{-- ════════════════════════════════════════════════ --}}
     {{-- SECTION 1: Merchants Who Uploaded Documents --}}

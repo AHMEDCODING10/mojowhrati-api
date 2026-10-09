@@ -37,6 +37,7 @@
                     ['route' => 'dashboard', 'label' => __('الرئيسية'), 'icon' => 'layout-dashboard', 'screen' => 'dashboard'],
                     ['route' => 'categories.index', 'label' => __('الأقسام'), 'icon' => 'layers', 'screen' => 'categories'],
                     ['route' => 'banners.index', 'label' => __('إدارة الإعلانات'), 'icon' => 'image', 'screen' => 'banners'],
+                    ['route' => 'promotions.index', 'label' => __('الترويج والظهور المميز'), 'icon' => 'sparkles', 'screen' => 'banners'],
                     ['route' => 'app-updates.create', 'label' => __('تحديثات التطبيق'), 'icon' => 'download-cloud', 'screen' => 'dashboard'],
                     ['route' => 'merchants.index', 'label' => __('التجار'), 'icon' => 'store', 'screen' => 'merchants'],
                     ['route' => 'bookings.index', 'label' => __('الحجوزات'), 'icon' => 'calendar-check', 'screen' => 'bookings'],

@@ -29,6 +29,7 @@ class ProductResource extends JsonResource
             'type' => $this->type,
             'status' => $this->status,
             'is_featured' => (bool) $this->is_featured,
+            'is_promoted' => (bool) ($this->is_promoted ?? false),
             'stock_quantity' => (int) $this->stock_quantity,
             'available_stock' => (int) $this->available_stock,
             'manage_stock' => (bool) $this->manage_stock,

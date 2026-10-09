@@ -43,9 +43,9 @@
             <button type="button" 
                     id="luxuryConfirmOkBtn" 
                     style="background: #dc2626 !important; color: #ffffff !important;"
-                    class="px-7 py-3 rounded-xl text-xs font-black shadow-lg hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center gap-2">
+                    class="px-7 py-3 rounded-xl text-xs font-black shadow-lg hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center gap-2 focus:ring-4 focus:ring-red-300 outline-none">
                 <i id="luxuryConfirmOkIcon" data-lucide="trash-2" class="w-4 h-4 text-white"></i>
-                <span id="luxuryConfirmOkText" class="text-white font-black">تأكيد</span>
+                <span id="luxuryConfirmOkText" class="text-white font-black">موافق</span>
             </button>
         </div>
     </div>
@@ -86,9 +86,9 @@
             <button type="button" 
                     id="luxuryAlertCloseBtn" 
                     style="background: #D4AF37 !important; color: #000000 !important; font-weight: 900;"
-                    class="px-10 py-3 rounded-xl text-xs shadow-lg hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center gap-2">
+                    class="px-10 py-3 rounded-xl text-xs shadow-lg hover:scale-[1.03] active:scale-95 transition-all duration-300 flex items-center gap-2 focus:ring-4 focus:ring-amber-300 outline-none">
                 <i data-lucide="check" class="w-4 h-4 text-black"></i>
-                <span>حسناً</span>
+                <span id="luxuryAlertCloseText">حسناً</span>
             </button>
         </div>
     </div>
@@ -118,7 +118,7 @@
             const title = options.title || 'تأكيد الإجراء';
             const message = options.message || 'هل أنت متأكد من تنفيذ هذا الإجراء؟';
             const type = options.type || (message.includes('حذف') || message.includes('مسح') ? 'danger' : 'warning');
-            const confirmText = options.confirmText || (type === 'danger' ? 'نعم، قم بالحذف' : 'نعم، تأكيد');
+            const confirmText = options.confirmText || (type === 'danger' ? 'نعم، قم بالحذف' : 'موافق');
             const cancelText = options.cancelText || 'إلغاء';
 
             titleEl.textContent = title;
@@ -152,7 +152,9 @@
                 modal.classList.remove('opacity-0', 'pointer-events-none');
                 card.classList.remove('scale-90');
                 card.classList.add('scale-100');
-            }, 10);
+                // Auto Focus on OK/Confirm button as requested by user
+                okBtn?.focus();
+            }, 50);
         });
     };
 
@@ -193,18 +195,26 @@
         const msgEl = document.getElementById('luxuryAlertMessage');
         const iconBg = document.getElementById('luxuryAlertIconBg');
         const iconEl = document.getElementById('luxuryAlertIcon');
+        const closeBtn = document.getElementById('luxuryAlertCloseBtn');
+        const closeText = document.getElementById('luxuryAlertCloseText');
 
         const message = options.message || options.title || 'تم تنفيذ العملية بنجاح';
         const type = options.type || (message.includes('حذف') || message.includes('مسح') ? 'success' : 'success');
         const title = options.title || (message.includes('حذف') || message.includes('مسح') ? 'تم الحذف بنجاح' : 'تم الإجراء بنجاح');
+        const btnLabel = options.btnLabel || 'حسناً';
 
         titleEl.textContent = title;
         msgEl.textContent = message;
+        if (closeText) closeText.textContent = btnLabel;
 
         if (type === 'error' || type === 'danger') {
             iconBg.className = 'w-16 h-16 rounded-full bg-rose-500/15 border-2 border-rose-500/30 flex items-center justify-center shadow-lg shadow-rose-500/10';
             iconEl.setAttribute('data-lucide', 'shield-alert');
             iconEl.className = 'w-8 h-8 text-rose-500';
+        } else if (type === 'warning') {
+            iconBg.className = 'w-16 h-16 rounded-full bg-amber-500/15 border-2 border-amber-500/30 flex items-center justify-center shadow-lg shadow-amber-500/10';
+            iconEl.setAttribute('data-lucide', 'alert-circle');
+            iconEl.className = 'w-8 h-8 text-amber-500';
         } else {
             iconBg.className = 'w-16 h-16 rounded-full bg-emerald-500/15 border-2 border-emerald-500/30 flex items-center justify-center shadow-lg shadow-emerald-500/10';
             iconEl.setAttribute('data-lucide', 'check-circle-2');
@@ -218,7 +228,9 @@
             modal.classList.remove('opacity-0', 'pointer-events-none');
             card.classList.remove('scale-90');
             card.classList.add('scale-100');
-        }, 10);
+            // Auto Focus on "حسناً" button as requested by user
+            closeBtn?.focus();
+        }, 50);
     };
 
     function closeAlertModal() {
@@ -236,6 +248,16 @@
     }
 
     document.getElementById('luxuryAlertCloseBtn')?.addEventListener('click', closeAlertModal);
+
+    document.addEventListener('keydown', (e) => {
+        const alertModal = document.getElementById('luxuryAlertModal');
+        if (alertModal && !alertModal.classList.contains('hidden')) {
+            if (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                closeAlertModal();
+            }
+        }
+    });
 
     // ── Form Confirm Helper ──────────────────────────────────────────────────
     window.confirmAction = function(target, message, title) {
@@ -299,7 +321,8 @@
             showLuxuryAlert({
                 title: @json(session('success')).includes('حذف') ? 'تم الحذف بنجاح' : 'تم الإجراء بنجاح',
                 message: @json(session('success')),
-                type: 'success'
+                type: 'success',
+                btnLabel: 'حسناً'
             });
         @endif
 
@@ -307,7 +330,8 @@
             showLuxuryAlert({
                 title: 'تنبيه بالنظام',
                 message: @json(session('error')),
-                type: 'error'
+                type: 'error',
+                btnLabel: 'حسناً'
             });
         @endif
 
@@ -315,7 +339,17 @@
             showLuxuryAlert({
                 title: 'إشعار بالنظام',
                 message: @json(session('status')),
-                type: 'info'
+                type: 'info',
+                btnLabel: 'حسناً'
+            });
+        @endif
+
+        @if(session('warning'))
+            showLuxuryAlert({
+                title: 'تحذير بالنظام',
+                message: @json(session('warning')),
+                type: 'warning',
+                btnLabel: 'حسناً'
             });
         @endif
     });

@@ -29,6 +29,7 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
         Route::delete('/user', [AuthController::class, 'destroy']);
         Route::post('/update-profile', [AuthController::class, 'updateProfile']);
         Route::post('/change-password', [AuthController::class, 'changePassword']);
+        Route::post('/force-reset-password', [AuthController::class, 'forceResetPassword']);
         Route::get('/user', function (Request $request) {
             return $request->user();
         });
@@ -78,6 +79,11 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
         // Merchant Store Branding
         Route::post('/merchant/branding', [MerchantController::class, 'updateBranding']);
 
+        // Merchant Promotion Requests
+        Route::get('/merchant/promotions/requests', [App\Http\Controllers\Api\V1\Merchant\PromotionRequestController::class, 'index']);
+        Route::post('/merchant/promotions/pricing', [App\Http\Controllers\Api\V1\Merchant\PromotionRequestController::class, 'calculateFee']);
+        Route::post('/merchant/promotions/request', [App\Http\Controllers\Api\V1\Merchant\PromotionRequestController::class, 'store']);
+
         // Reviews
         Route::post('/reviews', [ReviewController::class, 'store']);
     });
@@ -93,6 +99,7 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
     Route::get('/materials', [App\Http\Controllers\Api\V1\MaterialController::class, 'index']);
     Route::get('/merchants', [MerchantController::class, 'index']);
     Route::get('/banners', [App\Http\Controllers\Api\V1\BannerController::class, 'index']);
+    Route::get('/promotions', [App\Http\Controllers\Api\V1\PromotionApiController::class, 'index']);
     Route::get('/gold-prices', [App\Http\Controllers\Api\V1\GoldPriceController::class, 'index']);
     Route::get('/app-update/latest', [App\Http\Controllers\Api\V1\AppUpdateApiController::class, 'latest']);
     Route::get('/contacts', [ContactController::class, 'index']);
