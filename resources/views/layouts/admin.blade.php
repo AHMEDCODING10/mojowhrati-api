@@ -129,7 +129,6 @@
             <main
                 class="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-12 w-full animate-in fade-in slide-in-from-bottom-4 duration-700 h-full relative z-10">
                     @yield('content')
-                </div>
             </main>
 
             <!-- Live Gold Price Footer -->
