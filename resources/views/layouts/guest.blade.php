@@ -1,11 +1,19 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" 
       dir="rtl"
-      class="{{ session('theme', 'light') == 'dark' ? 'dark' : '' }}" 
       x-data="{ 
-          darkMode: {{ session('theme', 'light') == 'dark' ? 'true' : 'false' }},
-      }" 
-      :class="darkMode ? 'dark' : ''">
+          darkMode: localStorage.getItem('theme') === 'dark' || (localStorage.getItem('theme') === null && {{ session('theme', 'light') == 'dark' ? 'true' : 'false' }}),
+          init() {
+              if (this.darkMode) { document.documentElement.classList.add('dark'); }
+              else { document.documentElement.classList.remove('dark'); }
+              this.$watch('darkMode', value => {
+                  localStorage.setItem('theme', value ? 'dark' : 'light');
+                  if (value) { document.documentElement.classList.add('dark'); }
+                  else { document.documentElement.classList.remove('dark'); }
+                  toggleThemePersistent(value);
+              });
+          }
+      }">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">

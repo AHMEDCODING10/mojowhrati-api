@@ -1,9 +1,19 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ app()->getLocale() == 'ar' ? 'rtl' : 'ltr' }}"
-    class="{{ session('theme', 'light') == 'dark' ? 'dark' : '' }}" x-data="{ 
-    darkMode: {{ session('theme', 'light') == 'dark' ? 'true' : 'false' }},
+    x-data="{ 
+    darkMode: localStorage.getItem('theme') === 'dark' || (localStorage.getItem('theme') === null && {{ session('theme', 'light') == 'dark' ? 'true' : 'false' }}),
     sidebarOpen: false,
-}" :class="darkMode ? 'dark' : ''">
+    init() {
+        if (this.darkMode) { document.documentElement.classList.add('dark'); }
+        else { document.documentElement.classList.remove('dark'); }
+        this.$watch('darkMode', value => {
+            localStorage.setItem('theme', value ? 'dark' : 'light');
+            if (value) { document.documentElement.classList.add('dark'); }
+            else { document.documentElement.classList.remove('dark'); }
+            toggleThemePersistent(value);
+        });
+    }
+}">
 
 <head>
     <!-- System Version 1.0.1-Reset -->

@@ -5,9 +5,7 @@
         <div class="absolute bottom-0 left-0 w-48 h-48 bg-[#C5A059]/5 dark:bg-[#C5A059]/20 blur-[60px] rounded-full translate-y-1/3 -translate-x-1/4"></div>
     </div>
 
-    <div class="flex flex-col h-full relative z-10 overflow-y-auto custom-scrollbar"
-         x-data="{ init() { this.$el.scrollTop = sessionStorage.getItem('sidebarScroll') || 0; } }" 
-         @scroll.debounce.100ms="sessionStorage.setItem('sidebarScroll', $el.scrollTop)">
+    <div class="flex flex-col h-full relative z-10 overflow-y-auto custom-scrollbar">
         <!-- Premium Logo Section -->
         <div class="pt-10 pb-8 flex flex-col items-center">
             <div class="relative group mb-5">
