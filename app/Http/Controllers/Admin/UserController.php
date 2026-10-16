@@ -4,29 +4,42 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Marketer;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
     public function create()
     {
-        return view('users.create');
+        $marketers = Marketer::where('status', 'active')->orderBy('name')->get();
+        return view('users.create', compact('marketers'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'phone' => 'required|string|max:20',
-            'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:customer,merchant,admin,moderator,support,super_admin',
-            'profile_image' => 'nullable|image|max:2048',
+            'name'         => 'required|string|max:255',
+            'email'        => 'required|email|unique:users,email',
+            'phone'        => 'required|string|max:20',
+            'password'     => 'required|string|min:8|confirmed',
+            'role'         => 'required|in:customer,merchant,admin,moderator,support,super_admin',
+            'profile_image'=> 'nullable|image|max:2048',
+            'referral_code'=> 'nullable|string|exists:marketers,code',
         ]);
 
         $userData = $request->only(['name', 'email', 'phone', 'role']);
         $userData['password'] = bcrypt($request->password);
-        $userData['status'] = 'active';
+        $userData['status']   = 'active';
+
+        // Link marketer via referral code
+        $marketer = null;
+        if ($request->filled('referral_code')) {
+            $marketer = Marketer::where('code', $request->referral_code)->first();
+            if ($marketer) {
+                $userData['marketer_id']   = $marketer->id;
+                $userData['referral_code'] = $marketer->code;
+            }
+        }
 
         if ($request->hasFile('profile_image')) {
             $userData['profile_image'] = app(\App\Services\ImageKitService::class)->upload($request->file('profile_image'));
@@ -34,15 +47,28 @@ class UserController extends Controller
 
         $user = User::create($userData);
 
+        // Auto-credit commission to marketer
+        if ($marketer && $marketer->status === 'active') {
+            $userType = in_array($user->role, ['merchant']) ? 'merchant' : 'customer';
+            $allowed  = match($marketer->target_type) {
+                'merchant'  => ['merchant'],
+                'customer'  => ['customer'],
+                'both'      => ['merchant', 'customer'],
+            };
+            if (in_array($userType, $allowed)) {
+                $marketer->creditCommission($user, $userType);
+            }
+        }
+
         // Handle Permissions
         if (in_array($request->role, ['admin', 'moderator', 'support'])) {
             $permissions = $request->input('permissions', []);
             foreach ($permissions as $screen => $actions) {
                 $user->permissions()->create([
-                    'screen' => $screen,
-                    'can_view' => isset($actions['view']),
+                    'screen'     => $screen,
+                    'can_view'   => isset($actions['view']),
                     'can_create' => isset($actions['create']),
-                    'can_edit' => isset($actions['edit']),
+                    'can_edit'   => isset($actions['edit']),
                     'can_delete' => isset($actions['delete']),
                 ]);
             }

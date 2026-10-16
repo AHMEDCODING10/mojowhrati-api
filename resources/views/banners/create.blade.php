@@ -95,7 +95,7 @@
                         <!-- Targeting & Placement -->
                         <div class="space-y-3">
                             <label class="text-[10px] text-muted/40 font-black uppercase tracking-widest mr-1">{{ __('الجمهور المستهدف') }}</label>
-                            <select name="target" class="input-luxury w-full py-4 text-sm bg-onyx pointer-events-auto">
+                            <select name="target" class="input-luxury w-full py-4 text-sm">
                                 <option value="all" selected>{{ __('الجميع (عام)') }}</option>
                                 <option value="customer">{{ __('العملاء فقط') }}</option>
                             </select>
@@ -103,7 +103,7 @@
 
                         <div class="space-y-3">
                             <label class="text-[10px] text-muted/40 font-black uppercase tracking-widest mr-1">{{ __('مكان الظهور') }}</label>
-                            <select name="placement" class="input-luxury w-full py-4 text-sm bg-onyx">
+                            <select name="placement" class="input-luxury w-full py-4 text-sm">
                                 <option value="HOME_TOP" selected>{{ __('أعلى الشاشة الرئيسية') }}</option>
                                 <option value="HOME_SLIDER">{{ __('سلايدر العروض الرئيسي') }}</option>
                                 <option value="HOME_MIDDLE">{{ __('منتصف الشاشة (بين الأقسام)') }}</option>

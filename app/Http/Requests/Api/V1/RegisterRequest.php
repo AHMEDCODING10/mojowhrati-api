@@ -30,6 +30,7 @@ class RegisterRequest extends FormRequest
             'store_name' => ['required_if:role,merchant', 'string', 'max:255', 'regex:/^[a-zA-Z\p{L}\s]+$/u'],
             'commercial_register' => ['nullable', 'string', 'max:255'],
             'whatsapp_number' => ['nullable', 'string', 'max:20'],
+            'referral_code' => ['nullable', 'string', 'exists:marketers,code'],
         ];
     }
 

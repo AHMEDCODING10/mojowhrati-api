@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
+        <!-- Prevent theme flash: apply dark mode BEFORE any CSS renders -->
+        <script>
+            (function() {
+                var theme = localStorage.getItem('theme');
+                if (theme === null) theme = '{{ session("theme", "light") }}';
+                if (theme === 'dark') document.documentElement.classList.add('dark');
+            })();
+        </script>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">

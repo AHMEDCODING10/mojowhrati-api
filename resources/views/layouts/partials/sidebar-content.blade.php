@@ -42,10 +42,12 @@
                     ['route' => 'custom_designs.index', 'label' => __('طلبات التصميم الخاص'), 'icon' => 'pen-tool', 'screen' => 'custom_designs'],
                     ['route' => 'products.index', 'label' => __('إدارة المنتجات'), 'icon' => 'gem', 'screen' => 'products'],
                     ['route' => 'users.index', 'label' => __('إدارة المستخدمين'), 'icon' => 'users', 'screen' => 'users'],
+                    ['route' => 'marketers.index', 'label' => __('المسوقون'), 'icon' => 'megaphone', 'screen' => 'users'],
                     ['route' => 'currencies.index', 'label' => __('إدارة أسعار العملات'), 'icon' => 'banknote', 'screen' => 'currencies'],
                     ['route' => 'notifications.index', 'label' => __('الإشعارات'), 'icon' => 'bell', 'screen' => 'notifications'],
                     ['route' => 'contacts.index', 'label' => __('إدارة التواصل'), 'icon' => 'phone-call', 'screen' => 'contacts'],
                     ['route' => 'gold-prices.index', 'label' => __('أسعار الذهب'), 'icon' => 'coins', 'screen' => 'gold_prices'],
+                    ['route' => 'backups.index', 'label' => __('النسخ الاحتياطية'), 'icon' => 'database-backup', 'screen' => 'settings'],
                     ['route' => 'settings.index', 'label' => __('الإعدادات'), 'icon' => 'settings', 'screen' => 'settings'],
                     ['route' => 'reports.index', 'label' => __('التقارير'), 'icon' => 'bar-chart-3', 'screen' => 'reports'],
                 ];

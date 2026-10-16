@@ -16,6 +16,14 @@
 }">
 
 <head>
+    <!-- Prevent theme flash: apply dark mode BEFORE any CSS renders -->
+    <script>
+        (function() {
+            var theme = localStorage.getItem('theme');
+            if (theme === null) theme = '{{ session("theme", "light") }}';
+            if (theme === 'dark') document.documentElement.classList.add('dark');
+        })();
+    </script>
     <!-- System Version 1.0.1-Reset -->
     <meta charset="utf-8">
     <meta http-equiv="Content-Security-Policy"

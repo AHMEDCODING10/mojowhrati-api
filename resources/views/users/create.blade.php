@@ -159,6 +159,53 @@
                     </div>
                 </div>
 
+                {{-- ─── Marketer Referral (Customer/Merchant only) ───── --}}
+                <div x-show="['customer', 'merchant'].includes(role)"
+                     x-transition:enter="transition ease-out duration-300"
+                     x-transition:enter-start="opacity-0 -translate-y-2"
+                     x-transition:enter-end="opacity-100 translate-y-0"
+                     class="luxury-card p-8 border border-gold/15 bg-gold/3">
+                    <h4 class="text-base font-black text-main mb-6 uppercase tracking-widest flex items-center gap-3">
+                        <i data-lucide="megaphone" class="w-5 h-5 text-gold"></i>
+                        {{ __('ربط المسوق') }}
+                        <span class="text-[9px] text-muted/40 font-bold normal-case tracking-normal">({{ __('اختياري') }})</span>
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-3">
+                            <label class="text-[10px] text-muted/40 font-black uppercase tracking-widest">
+                                {{ __('اختر المسوق') }}
+                            </label>
+                            <select name="referral_code" class="input-luxury w-full py-4 text-sm"
+                                    onchange="this.form.elements['referral_code_display'].value = this.options[this.selectedIndex].dataset.code || ''">
+                                <option value="">— {{ __('بدون مسوق') }} —</option>
+                                @foreach($marketers as $mktr)
+                                    <option value="{{ $mktr->code }}"
+                                            data-code="{{ $mktr->code }}"
+                                            {{ old('referral_code') === $mktr->code ? 'selected' : '' }}>
+                                        {{ $mktr->name }} — {{ $mktr->code }}
+                                        @if($mktr->target_type !== 'both')
+                                            ({{ $mktr->target_type === 'merchant' ? 'تجار فقط' : 'عملاء فقط' }})
+                                        @endif
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="space-y-3">
+                            <label class="text-[10px] text-muted/40 font-black uppercase tracking-widest">
+                                {{ __('رمز الإحالة المختار') }}
+                            </label>
+                            <input type="text" name="referral_code_display" readonly
+                                   value="{{ old('referral_code') }}"
+                                   class="input-luxury w-full py-4 text-sm font-black text-gold tracking-[0.2em] bg-gold/5"
+                                   placeholder="{{ __('سيظهر هنا رمز المسوق المحدد') }}" dir="ltr">
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-muted/40 font-bold mt-4 flex items-center gap-2">
+                        <i data-lucide="info" class="w-3.5 h-3.5 text-gold/50"></i>
+                        {{ __('عند اختيار مسوق سيتم ترحيل عمولته إلى حسابه تلقائياً عند إنشاء الحساب') }}
+                    </p>
+                </div>
+
                 <div class="flex justify-end pt-4">
                     <button type="submit" class="px-16 py-5 bg-gold text-onyx rounded-2xl text-xs font-black uppercase tracking-widest shadow-2xl shadow-gold/30 hover:scale-105 active:scale-95 transition-all">
                         {{ __('إنشاء الحساب') }}

@@ -15,22 +15,48 @@ class AuthService
 {
     public function register(array $data)
     {
-        $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'phone' => $data['phone'],
+        // Check if referral code is provided, link to marketer
+        $marketer = null;
+        $marketerFields = [];
+        if (!empty($data['referral_code'])) {
+            $marketer = \App\Models\Marketer::where('code', $data['referral_code'])
+                ->where('status', 'active')
+                ->first();
+            if ($marketer) {
+                $marketerFields['marketer_id']   = $marketer->id;
+                $marketerFields['referral_code'] = $marketer->code;
+            }
+        }
+
+        $user = User::create(array_merge([
+            'name'     => $data['name'],
+            'email'    => $data['email'],
+            'phone'    => $data['phone'],
             'password' => Hash::make($data['password']),
-            'role' => $data['role'] ?? 'customer',
-        ]);
+            'role'     => $data['role'] ?? 'customer',
+        ], $marketerFields));
         
         if ($user->role === 'merchant') {
             Merchant::create([
-                'user_id' => $user->id,
-                'store_name' => $data['store_name'] ?? $user->name,
+                'user_id'        => $user->id,
+                'store_name'     => $data['store_name'] ?? $user->name,
                 'contact_number' => $user->phone,
-                'store_status' => 'active',
-                'approved' => false, // Needs admin approval if required
+                'store_status'   => 'active',
+                'approved'       => false, // Needs admin approval if required
             ]);
+        }
+
+        // Auto-credit commission to marketer
+        if ($marketer) {
+            $userType = $user->role === 'merchant' ? 'merchant' : 'customer';
+            $allowed  = match($marketer->target_type) {
+                'merchant' => ['merchant'],
+                'customer' => ['customer'],
+                'both'     => ['merchant', 'customer'],
+            };
+            if (in_array($userType, $allowed)) {
+                $marketer->creditCommission($user, $userType);
+            }
         }
 
         // Notify Admins
@@ -40,10 +66,10 @@ class AuthService
                 'عضو جديد انضم إلينا',
                 "قام {$user->name} بإنشاء حساب جديد بصفة " . ($user->role === 'merchant' ? 'تاجر' : 'عميل'),
                 [
-                    'user_id' => $user->id,
+                    'user_id'   => $user->id,
                     'user_name' => $user->name,
-                    'role' => $user->role,
-                    'icon' => 'user-plus'
+                    'role'      => $user->role,
+                    'icon'      => 'user-plus'
                 ],
                 true // Consolidate user joins
             );

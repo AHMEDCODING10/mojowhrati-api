@@ -15,6 +15,14 @@
           }
       }">
     <head>
+        <!-- Prevent theme flash: apply dark mode BEFORE any CSS renders -->
+        <script>
+            (function() {
+                var theme = localStorage.getItem('theme');
+                if (theme === null) theme = '{{ session("theme", "light") }}';
+                if (theme === 'dark') document.documentElement.classList.add('dark');
+            })();
+        </script>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -55,7 +63,7 @@
             }
         </style>
     </head>
-    <body class="font-sans antialiased text-gray-900 dark:text-white min-h-screen flex items-center justify-center relative overflow-x-hidden selection:bg-gold/30 selection:text-onyx transition-colors duration-500 :class="darkMode ? 'mesh-dark-gold' : 'mesh-light-gold'">
+    <body class="font-sans antialiased text-gray-900 dark:text-white min-h-screen flex items-center justify-center relative overflow-x-hidden selection:bg-gold/30 selection:text-onyx transition-colors duration-500" :class="darkMode ? 'mesh-dark-gold' : 'mesh-light-gold'">
 
         <!-- High-End Background Mesh Glow Elements -->
         <div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">

@@ -46,7 +46,7 @@ class PromotionController extends Controller
 
     public function create()
     {
-        $merchants = Merchant::where('status', 'active')->orderBy('store_name')->get();
+        $merchants = Merchant::where('store_status', 'active')->orderBy('store_name')->get();
         $categories = Category::orderBy('name')->get();
         $products = Product::where('status', 'approved')->orderBy('title')->get();
 
@@ -89,7 +89,7 @@ class PromotionController extends Controller
 
     public function edit(Promotion $promotion)
     {
-        $merchants = Merchant::where('status', 'active')->orderBy('store_name')->get();
+        $merchants = Merchant::where('store_status', 'active')->orderBy('store_name')->get();
         $categories = Category::orderBy('name')->get();
         $products = Product::where('status', 'approved')->orderBy('title')->get();
 

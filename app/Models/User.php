@@ -36,6 +36,11 @@ class User extends Authenticatable
         return $this->hasOne(Merchant::class);
     }
 
+    public function marketer()
+    {
+        return $this->belongsTo(Marketer::class);
+    }
+
     public function favorites()
     {
         return $this->hasMany(Favorite::class);
@@ -107,6 +112,8 @@ class User extends Authenticatable
         'role',
         'status',
         'profile_image',
+        'marketer_id',
+        'referral_code',
     ];
 
 

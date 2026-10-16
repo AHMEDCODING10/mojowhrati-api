@@ -176,6 +176,26 @@ Route::middleware(['auth', 'verified', 'role:super_admin,admin,moderator,support
     Route::post('/contacts/{id}', [App\Http\Controllers\Admin\ContactController::class, 'update'])->name('contacts.update');
     Route::post('/contacts/{id}/toggle', [App\Http\Controllers\Admin\ContactController::class, 'toggleStatus'])->name('contacts.toggle');
     Route::delete('/contacts/{id}', [App\Http\Controllers\Admin\ContactController::class, 'destroy'])->name('contacts.destroy');
+
+    // Backups
+    Route::get('/backups', [App\Http\Controllers\Admin\BackupController::class, 'index'])->name('backups.index');
+    Route::get('/backups/create', [App\Http\Controllers\Admin\BackupController::class, 'create'])->name('backups.create');
+    Route::post('/backups/validate', [App\Http\Controllers\Admin\BackupController::class, 'validate'])->name('backups.validate');
+    Route::post('/backups/restore', [App\Http\Controllers\Admin\BackupController::class, 'restore'])->name('backups.restore');
+    Route::get('/backups/download/{filename}', [App\Http\Controllers\Admin\BackupController::class, 'download'])->name('backups.download')->where('filename', '.+');
+    Route::delete('/backups/{filename}', [App\Http\Controllers\Admin\BackupController::class, 'destroy'])->name('backups.destroy')->where('filename', '.+');
+
+    // Marketers
+    Route::get('/marketers', [App\Http\Controllers\Admin\MarketersController::class, 'index'])->name('marketers.index');
+    Route::get('/marketers/create', [App\Http\Controllers\Admin\MarketersController::class, 'create'])->name('marketers.create');
+    Route::post('/marketers', [App\Http\Controllers\Admin\MarketersController::class, 'store'])->name('marketers.store');
+    Route::get('/marketers/{id}', [App\Http\Controllers\Admin\MarketersController::class, 'show'])->name('marketers.show');
+    Route::get('/marketers/{id}/edit', [App\Http\Controllers\Admin\MarketersController::class, 'edit'])->name('marketers.edit');
+    Route::put('/marketers/{id}', [App\Http\Controllers\Admin\MarketersController::class, 'update'])->name('marketers.update');
+    Route::delete('/marketers/{id}', [App\Http\Controllers\Admin\MarketersController::class, 'destroy'])->name('marketers.destroy');
+    Route::post('/marketers/{id}/toggle', [App\Http\Controllers\Admin\MarketersController::class, 'toggleStatus'])->name('marketers.toggle');
+    Route::post('/marketers/{id}/mark-paid', [App\Http\Controllers\Admin\MarketersController::class, 'markPaid'])->name('marketers.mark-paid');
+    Route::post('/marketers/{id}/regenerate-code', [App\Http\Controllers\Admin\MarketersController::class, 'regenerateCode'])->name('marketers.regenerate-code');
 });
 
 
