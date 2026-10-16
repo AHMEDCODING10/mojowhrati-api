@@ -31,7 +31,7 @@ class PasswordResetLinkController extends Controller
             'email' => ['required', 'email'],
         ], [
             'email.required' => 'يرجى إدخال البريد الإلكتروني.',
-            'email.email' => 'يرجى إدخال عنوان بريد إلكتروني صحيح.',
+            'email.email'    => 'يرجى إدخال عنوان بريد إلكتروني صحيح.',
         ]);
 
         $email = trim($request->email);
@@ -47,18 +47,27 @@ class PasswordResetLinkController extends Controller
         // 2. Generate 6-digit random code
         $code = (string) rand(100000, 999999);
 
-        // 3. Cache code for 15 minutes
+        // 3. Cache code for 15 minutes (keyed by email)
         Cache::put('web_password_reset_code_' . $email, $code, now()->addMinutes(15));
         session(['web_reset_email' => $email]);
 
-        // 4. Send luxury email with 6-digit code
+        // 4. Send email with OTP — show clear error if mail fails
         try {
             Mail::to($email)->send(new VerificationCode($code, 'كود استعادة كلمة المرور'));
         } catch (\Exception $e) {
-            \Log::error('Failed to send password reset email: ' . $e->getMessage());
+            \Log::error('[PasswordReset] Mail send failed for ' . $email . ': ' . $e->getMessage());
+
+            // Clear the cached code so it cannot be guessed without a sent email
+            Cache::forget('web_password_reset_code_' . $email);
+            session()->forget('web_reset_email');
+
+            throw ValidationException::withMessages([
+                'email' => ['حدث خطأ أثناء إرسال البريد الإلكتروني. يرجى المحاولة مرة أخرى لاحقاً.'],
+            ]);
         }
 
-        return redirect()->route('password.verify-code.show');
+        return redirect()->route('password.verify-code.show')
+                         ->with('status', 'تم إرسال كود التحقق إلى بريدك الإلكتروني.');
     }
 
     /**

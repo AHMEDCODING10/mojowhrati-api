@@ -19,6 +19,36 @@ Route::get('/', function () {
     return redirect('/dashboard');
 });
 
+// ──────────────────────────────────────────────────────
+// TEMPORARY: Mail diagnostic route — remove after fixing
+// Usage: /debug-mail?secret=mx2024&to=your@email.com
+Route::get('/debug-mail', function(\Illuminate\Http\Request $request) {
+    if ($request->get('secret') !== 'mx2024') abort(403);
+    $to = $request->get('to', 'test@example.com');
+    try {
+        \Mail::raw('اختبار إرسال البريد - مجوهراتي', function($m) use ($to) {
+            $m->to($to)->subject('اختبار SMTP - مجوهراتي');
+        });
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'تم إرسال البريد بنجاح إلى ' . $to,
+            'mailer'  => config('mail.default'),
+            'host'    => config('mail.mailers.smtp.host'),
+            'port'    => config('mail.mailers.smtp.port'),
+            'from'    => config('mail.from'),
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status'  => 'error',
+            'message' => $e->getMessage(),
+            'mailer'  => config('mail.default'),
+            'host'    => config('mail.mailers.smtp.host'),
+            'port'    => config('mail.mailers.smtp.port'),
+            'from'    => config('mail.from'),
+        ], 500);
+    }
+});
+
 // Temporary Route to test deletion end-to-end
 Route::get('/debug-logs', function() {
     try {
