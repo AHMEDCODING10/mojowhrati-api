@@ -24,21 +24,12 @@
           class="bg-white/60 dark:bg-[#1A1A1A]/80 backdrop-blur-xl border border-gold/15 rounded-[2.5rem] p-8 shadow-xl space-y-6">
         @csrf
 
-        {{-- ─── Field style reusable class via @php --}}
-        @php
-            $field = 'w-full bg-white dark:bg-black/40 border border-gold/20 dark:border-gold/15
-                      focus:border-gold focus:ring-2 focus:ring-gold/20 rounded-2xl px-4 py-3.5
-                      text-main font-bold text-sm outline-none transition-all
-                      dark:text-white placeholder-muted/40';
-            $label = 'block text-[10px] font-black uppercase tracking-widest text-muted/60 dark:text-muted/50 mb-2';
-        @endphp
-
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
             {{-- Merchant Selection --}}
             <div>
-                <label class="{{ $label }}">التاجر المستفيد (اختياري)</label>
-                <select name="merchant_id" class="{{ $field }} appearance-none cursor-pointer">
+                <label class="block text-[10px] font-black uppercase tracking-widest text-muted/60 dark:text-muted/50 mb-2">التاجر المستفيد (اختياري)</label>
+                <select name="merchant_id" class="w-full bg-white dark:bg-black/40 border border-gold/20 dark:border-gold/15 focus:border-gold focus:ring-2 focus:ring-gold/20 rounded-2xl px-4 py-3.5 text-main dark:text-white font-bold text-sm outline-none transition-all appearance-none cursor-pointer">
                     <option value="" class="bg-white dark:bg-neutral-900">-- بدون تاجر محدد (حملة عامة) --</option>
                     @foreach($merchants as $merchant)
                     <option value="{{ $merchant->id }}"
@@ -52,8 +43,8 @@
 
             {{-- Promotion Type --}}
             <div>
-                <label class="{{ $label }}">نوع الترويج <span class="text-rose-500">*</span></label>
-                <select name="type" id="promotionType" class="{{ $field }} appearance-none cursor-pointer"
+                <label class="block text-[10px] font-black uppercase tracking-widest text-muted/60 dark:text-muted/50 mb-2">نوع الترويج <span class="text-rose-500">*</span></label>
+                <select name="type" id="promotionType" class="w-full bg-white dark:bg-black/40 border border-gold/20 dark:border-gold/15 focus:border-gold focus:ring-2 focus:ring-gold/20 rounded-2xl px-4 py-3.5 text-main dark:text-white font-bold text-sm outline-none transition-all appearance-none cursor-pointer"
                         required onchange="toggleTargetFields()">
                     <option value="category"       {{ old('type') == 'category'       ? 'selected' : '' }} class="bg-white dark:bg-neutral-900">ترويج صنف / قسم معين</option>
                     <option value="product"         {{ old('type') == 'product'         ? 'selected' : '' }} class="bg-white dark:bg-neutral-900">ترويج منتج محدد</option>
@@ -64,8 +55,8 @@
 
             {{-- Category Select (Conditional) --}}
             <div id="categoryContainer">
-                <label class="{{ $label }}">اختر الصنف / القسم المستهدف</label>
-                <select name="target_id_category" id="categorySelect" class="{{ $field }} appearance-none cursor-pointer">
+                <label class="block text-[10px] font-black uppercase tracking-widest text-muted/60 dark:text-muted/50 mb-2">اختر الصنف / القسم المستهدف</label>
+                <select name="target_id_category" id="categorySelect" class="w-full bg-white dark:bg-black/40 border border-gold/20 dark:border-gold/15 focus:border-gold focus:ring-2 focus:ring-gold/20 rounded-2xl px-4 py-3.5 text-main dark:text-white font-bold text-sm outline-none transition-all appearance-none cursor-pointer">
                     <option value="" class="bg-white dark:bg-neutral-900">-- اختر القسم --</option>
                     @foreach($categories as $category)
                     <option value="{{ $category->id }}" class="bg-white dark:bg-neutral-900">{{ $category->name }}</option>
@@ -75,8 +66,8 @@
 
             {{-- Product Select (Conditional) --}}
             <div id="productContainer" class="hidden">
-                <label class="{{ $label }}">اختر المنتج المستهدف</label>
-                <select name="target_id_product" id="productSelect" class="{{ $field }} appearance-none cursor-pointer">
+                <label class="block text-[10px] font-black uppercase tracking-widest text-muted/60 dark:text-muted/50 mb-2">اختر المنتج المستهدف</label>
+                <select name="target_id_product" id="productSelect" class="w-full bg-white dark:bg-black/40 border border-gold/20 dark:border-gold/15 focus:border-gold focus:ring-2 focus:ring-gold/20 rounded-2xl px-4 py-3.5 text-main dark:text-white font-bold text-sm outline-none transition-all appearance-none cursor-pointer">
                     <option value="" class="bg-white dark:bg-neutral-900">-- اختر المنتج --</option>
                     @foreach($products as $product)
                     <option value="{{ $product->id }}" class="bg-white dark:bg-neutral-900">
@@ -88,16 +79,16 @@
 
             {{-- Title --}}
             <div>
-                <label class="{{ $label }}">عنوان الحملة (عنوان داخلي)</label>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-muted/60 dark:text-muted/50 mb-2">عنوان الحملة (عنوان داخلي)</label>
                 <input type="text" name="title" value="{{ old('title') }}"
                        placeholder="مثال: ترويج قسم الخواتم - متجر الخليج"
-                       class="{{ $field }}">
+                       class="w-full bg-white dark:bg-black/40 border border-gold/20 dark:border-gold/15 focus:border-gold focus:ring-2 focus:ring-gold/20 rounded-2xl px-4 py-3.5 text-main dark:text-white font-bold text-sm outline-none transition-all placeholder-muted/40">
             </div>
 
             {{-- Placement --}}
             <div>
-                <label class="{{ $label }}">مكان الظهور الأولي <span class="text-rose-500">*</span></label>
-                <select name="placement" class="{{ $field }} appearance-none cursor-pointer" required>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-muted/60 dark:text-muted/50 mb-2">مكان الظهور الأولي <span class="text-rose-500">*</span></label>
+                <select name="placement" class="w-full bg-white dark:bg-black/40 border border-gold/20 dark:border-gold/15 focus:border-gold focus:ring-2 focus:ring-gold/20 rounded-2xl px-4 py-3.5 text-main dark:text-white font-bold text-sm outline-none transition-all appearance-none cursor-pointer" required>
                     <option value="HOME_TOP"        class="bg-white dark:bg-neutral-900">أعلى الشاشة الرئيسية (Home Top)</option>
                     <option value="CATEGORY_TOP"    class="bg-white dark:bg-neutral-900">أعلى قائمة القسم (Category Top)</option>
                     <option value="FEATURED_SLIDER" class="bg-white dark:bg-neutral-900">شريط المنتجات المميزة (Featured Slider)</option>
@@ -107,54 +98,76 @@
 
             {{-- Start Date --}}
             <div>
-                <label class="{{ $label }}">تاريخ البداية (فوري إذا تُرك فارغاً)</label>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-muted/60 dark:text-muted/50 mb-2">تاريخ البداية (فوري إذا تُرك فارغاً)</label>
                 <input type="datetime-local" name="start_at" value="{{ old('start_at') }}"
-                       class="{{ $field }} [color-scheme:light] dark:[color-scheme:dark]">
+                       class="w-full bg-white dark:bg-black/40 border border-gold/20 dark:border-gold/15 focus:border-gold focus:ring-2 focus:ring-gold/20 rounded-2xl px-4 py-3.5 text-main dark:text-white font-bold text-sm outline-none transition-all [color-scheme:light] dark:[color-scheme:dark]">
             </div>
 
             {{-- End Date --}}
             <div>
-                <label class="{{ $label }}">تاريخ النهاية (المدة الترويجية) <span class="text-rose-500">*</span></label>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-muted/60 dark:text-muted/50 mb-2">تاريخ النهاية (المدة الترويجية) <span class="text-rose-500">*</span></label>
                 <input type="datetime-local" name="end_at" value="{{ old('end_at') }}"
-                       class="{{ $field }} [color-scheme:light] dark:[color-scheme:dark]">
+                       class="w-full bg-white dark:bg-black/40 border border-gold/20 dark:border-gold/15 focus:border-gold focus:ring-2 focus:ring-gold/20 rounded-2xl px-4 py-3.5 text-main dark:text-white font-bold text-sm outline-none transition-all [color-scheme:light] dark:[color-scheme:dark]">
             </div>
 
             {{-- Priority --}}
             <div>
-                <label class="{{ $label }}">درجة الأولوية (PRIORITY SCORE) <span class="text-rose-500">*</span></label>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-muted/60 dark:text-muted/50 mb-2">درجة الأولوية (PRIORITY SCORE) <span class="text-rose-500">*</span></label>
                 <input type="number" name="priority" value="{{ old('priority', 10) }}" min="0"
-                       class="{{ $field }}" required>
-                <p class="text-[10px] text-muted/50 font-bold mt-2 flex items-center gap-1">
-                    <i data-lucide="info" class="w-3 h-3 text-gold/50"></i>
-                    الرقم الأعلى يعطي أولوية في الظهور قبل باقي المعروضات
-                </p>
+                       class="w-full bg-white dark:bg-black/40 border border-gold/20 dark:border-gold/15 focus:border-gold focus:ring-2 focus:ring-gold/20 rounded-2xl px-4 py-3.5 text-main dark:text-white font-bold text-sm outline-none transition-all" required>
+                <p class="text-[10px] text-muted/50 font-bold mt-2">الرقم الأعلى يعطي أولوية في الظهور قبل باقي المعروضات</p>
             </div>
 
             {{-- Fee Amount --}}
             <div>
-                <label class="{{ $label }}">رسوم الترويج المستقطعة ($/ر.س) <span class="text-rose-500">*</span></label>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-muted/60 dark:text-muted/50 mb-2">رسوم الترويج المستقطعة ($/ر.س) <span class="text-rose-500">*</span></label>
                 <input type="number" step="0.01" name="fee_amount" value="{{ old('fee_amount', '50.00') }}" min="0"
-                       class="{{ $field }}" required dir="ltr">
+                       class="w-full bg-white dark:bg-black/40 border border-gold/20 dark:border-gold/15 focus:border-gold focus:ring-2 focus:ring-gold/20 rounded-2xl px-4 py-3.5 text-main dark:text-white font-bold text-sm outline-none transition-all" required dir="ltr">
             </div>
 
             {{-- Payment Status --}}
             <div class="md:col-span-2">
-                <label class="{{ $label }}">حالة الدفع <span class="text-rose-500">*</span></label>
+                <label class="block text-[10px] font-black uppercase tracking-widest text-muted/60 dark:text-muted/50 mb-3">حالة الدفع <span class="text-rose-500">*</span></label>
                 <div class="grid grid-cols-3 gap-3">
-                    @foreach(['paid' => ['مدفوع بالكامل','emerald-500'], 'unpaid' => ['غير مدفوع (معلق)','rose-500'], 'waived' => ['مجاني / تجريبي','amber-500']] as $val => [$lbl, $col])
+                    {{-- Paid --}}
                     <label class="cursor-pointer">
-                        <input type="radio" name="payment_status" value="{{ $val }}"
-                               {{ old('payment_status', 'paid') === $val ? 'checked' : '' }}
+                        <input type="radio" name="payment_status" value="paid"
+                               {{ old('payment_status', 'paid') === 'paid' ? 'checked' : '' }}
                                class="hidden payment-radio">
-                        <div data-val="{{ $val }}" data-col="{{ $col }}"
-                             class="payment-opt p-4 rounded-2xl border-2 border-gold/15
-                                    bg-white dark:bg-black/30 text-center font-black text-xs
-                                    text-muted/60 transition-all duration-200 hover:border-{{ $col }}/50 cursor-pointer
-                                    {{ old('payment_status', 'paid') === $val ? 'border-'.$col.' bg-'.$col.'/10 text-'.$col : '' }}">
-                            {{ $lbl }}
+                        <div data-val="paid"
+                             class="payment-opt p-4 rounded-2xl border-2 text-center font-black text-xs transition-all duration-200 cursor-pointer
+                                    {{ old('payment_status', 'paid') === 'paid'
+                                        ? 'border-emerald-500 bg-emerald-500/10 text-emerald-500'
+                                        : 'border-gold/15 bg-white dark:bg-black/30 text-muted/60 hover:border-emerald-500/40' }}">
+                            مدفوع بالكامل
                         </div>
                     </label>
-                    @endforeach
+                    {{-- Unpaid --}}
+                    <label class="cursor-pointer">
+                        <input type="radio" name="payment_status" value="unpaid"
+                               {{ old('payment_status') === 'unpaid' ? 'checked' : '' }}
+                               class="hidden payment-radio">
+                        <div data-val="unpaid"
+                             class="payment-opt p-4 rounded-2xl border-2 text-center font-black text-xs transition-all duration-200 cursor-pointer
+                                    {{ old('payment_status') === 'unpaid'
+                                        ? 'border-rose-500 bg-rose-500/10 text-rose-500'
+                                        : 'border-gold/15 bg-white dark:bg-black/30 text-muted/60 hover:border-rose-500/40' }}">
+                            غير مدفوع (معلق)
+                        </div>
+                    </label>
+                    {{-- Waived --}}
+                    <label class="cursor-pointer">
+                        <input type="radio" name="payment_status" value="waived"
+                               {{ old('payment_status') === 'waived' ? 'checked' : '' }}
+                               class="hidden payment-radio">
+                        <div data-val="waived"
+                             class="payment-opt p-4 rounded-2xl border-2 text-center font-black text-xs transition-all duration-200 cursor-pointer
+                                    {{ old('payment_status') === 'waived'
+                                        ? 'border-amber-500 bg-amber-500/10 text-amber-500'
+                                        : 'border-gold/15 bg-white dark:bg-black/30 text-muted/60 hover:border-amber-500/40' }}">
+                            مجاني / تجريبي
+                        </div>
+                    </label>
                 </div>
             </div>
         </div>
@@ -163,10 +176,10 @@
 
         {{-- Notes --}}
         <div>
-            <label class="{{ $label }}">ملاحظات إضافية (للأدمن)</label>
+            <label class="block text-[10px] font-black uppercase tracking-widest text-muted/60 dark:text-muted/50 mb-2">ملاحظات إضافية (للأدمن)</label>
             <textarea name="notes" rows="3"
                       placeholder="أية تفاصيل إضافية حول التخفيض أو الاتفاق مع التاجر..."
-                      class="{{ $field }} resize-none"></textarea>
+                      class="w-full bg-white dark:bg-black/40 border border-gold/20 dark:border-gold/15 focus:border-gold focus:ring-2 focus:ring-gold/20 rounded-2xl px-4 py-3.5 text-main dark:text-white font-bold text-sm outline-none transition-all resize-none placeholder-muted/40"></textarea>
         </div>
 
         {{-- Submit --}}
@@ -199,18 +212,24 @@ function prepareTargetId() {
 }
 
 // Payment radio visual toggle
+const colorMap = { paid: 'emerald-500', unpaid: 'rose-500', waived: 'amber-500' };
+
 document.querySelectorAll('.payment-radio').forEach(radio => {
     radio.addEventListener('change', () => {
         document.querySelectorAll('.payment-opt').forEach(opt => {
-            const col = opt.dataset.col;
-            const active = opt.dataset.val === radio.value;
-            opt.className = opt.className
-                .replace(/border-\S+/g, '')
-                .replace(/bg-\S+\/10/g, '')
-                .replace(/text-\S+(?=\s|$)/g, 'text-muted/60');
+            const val  = opt.dataset.val;
+            const col  = colorMap[val];
+            const active = val === radio.value;
+
+            opt.classList.remove(
+                'border-emerald-500','bg-emerald-500/10','text-emerald-500',
+                'border-rose-500','bg-rose-500/10','text-rose-500',
+                'border-amber-500','bg-amber-500/10','text-amber-500',
+                'border-gold/15','text-muted/60'
+            );
+
             if (active) {
                 opt.classList.add(`border-${col}`, `bg-${col}/10`, `text-${col}`);
-                opt.classList.remove('border-gold/15', 'text-muted/60');
             } else {
                 opt.classList.add('border-gold/15', 'text-muted/60');
             }
