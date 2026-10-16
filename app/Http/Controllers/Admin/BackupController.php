@@ -85,18 +85,63 @@ class BackupController extends Controller
         $origName = $file->getClientOriginalName();
 
         if (!in_array($ext, ['zip', 'sql'])) {
-            return response()->json(['valid' => false, 'message' => 'صيغة الملف غير مدعومة. يجب أن يكون .zip أو .sql']);
+            return response()->json([
+                'valid'   => false,
+                'message' => 'صيغة الملف غير مدعومة. يجب أن يكون .zip أو .sql',
+            ]);
         }
 
-        // Basic structural check
-        if ($ext === 'zip' && class_exists('ZipArchive')) {
-            $tmpPath = $file->store('backups/tmp', 'local');
-            $fullTmp = storage_path("app/{$tmpPath}");
-            $zip = new ZipArchive();
-            if ($zip->open($fullTmp) !== true) {
-                Storage::disk('local')->delete($tmpPath);
-                return response()->json(['valid' => false, 'message' => 'ملف ZIP تالف أو غير قابل للقراءة']);
+        // ─── Save to a temp path using getRealPath() directly ──────
+        // Avoid re-reading through Laravel Storage to prevent ZipArchive issues
+        $backupsDir = storage_path('app/backups');
+        if (!is_dir($backupsDir)) {
+            mkdir($backupsDir, 0775, true);
+        }
+
+        // Generate a safe unique destination name
+        $safeBase   = preg_replace('/[^a-zA-Z0-9_\-\.]/', '_', $origName);
+        $destName   = $safeBase;
+        $destPath   = $backupsDir . DIRECTORY_SEPARATOR . $destName;
+
+        // Move uploaded file directly from PHP temp to our destination
+        if (!move_uploaded_file($file->getRealPath(), $destPath)) {
+            // Fallback: use Laravel move
+            $file->move($backupsDir, $destName);
+        }
+
+        if (!file_exists($destPath) || filesize($destPath) === 0) {
+            @unlink($destPath);
+            return response()->json([
+                'valid'   => false,
+                'message' => 'فشل رفع الملف أو الملف فارغ',
+            ]);
+        }
+
+        if ($ext === 'zip') {
+            if (!class_exists('ZipArchive')) {
+                // Can't validate, assume ok
+                session([
+                    'pending_restore_file' => "backups/{$destName}",
+                    'pending_restore_name' => $destName,
+                ]);
+                return response()->json([
+                    'valid'    => true,
+                    'message'  => 'تم قبول الملف (التحقق من ZIP غير متاح)',
+                    'filename' => $origName,
+                ]);
             }
+
+            $zip = new ZipArchive();
+            $openResult = $zip->open($destPath);
+
+            if ($openResult !== true) {
+                @unlink($destPath);
+                return response()->json([
+                    'valid'   => false,
+                    'message' => 'ملف ZIP تالف أو غير قابل للقراءة (رمز الخطأ: ' . $openResult . ')',
+                ]);
+            }
+
             $hasSql = false;
             for ($i = 0; $i < $zip->numFiles; $i++) {
                 if (str_ends_with(strtolower($zip->getNameIndex($i)), '.sql')) {
@@ -105,22 +150,27 @@ class BackupController extends Controller
                 }
             }
             $zip->close();
+
             if (!$hasSql) {
-                Storage::disk('local')->delete($tmpPath);
-                return response()->json(['valid' => false, 'message' => 'الملف لا يحتوي على بيانات SQL صالحة']);
+                @unlink($destPath);
+                return response()->json([
+                    'valid'   => false,
+                    'message' => 'الملف لا يحتوي على بيانات SQL صالحة',
+                ]);
             }
-            // Move to permanent location
-            $destName = basename($origName);
-            Storage::disk('local')->move($tmpPath, "backups/{$destName}");
-            session(['pending_restore_file' => "backups/{$destName}", 'pending_restore_name' => $destName]);
-        } else {
-            // .sql file
-            $tmpPath = $file->store('backups', 'local');
-            $destName = basename($origName);
-            session(['pending_restore_file' => "backups/{$destName}", 'pending_restore_name' => $destName]);
         }
 
-        return response()->json(['valid' => true, 'message' => 'الملف سليم وجاهز للاستعادة', 'filename' => $origName]);
+        // Store in session for later restore step
+        session([
+            'pending_restore_file' => "backups/{$destName}",
+            'pending_restore_name' => $destName,
+        ]);
+
+        return response()->json([
+            'valid'    => true,
+            'message'  => 'الملف سليم وجاهز للاستعادة',
+            'filename' => $origName,
+        ]);
     }
 
     /**
