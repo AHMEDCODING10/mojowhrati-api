@@ -108,7 +108,7 @@
                     <!-- Session Status -->
                     <x-auth-session-status class="mb-8" :status="session('status')" />
 
-                    <form method="POST" action="{{ route('password.verify-code') }}" class="space-y-6">
+                    <form method="POST" action="{{ route('password.verify-code.store') }}" class="space-y-6">
                         @csrf
                         <input type="hidden" name="email" value="{{ $email }}">
 
