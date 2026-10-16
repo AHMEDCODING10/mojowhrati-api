@@ -229,10 +229,11 @@
 
             <div class="space-y-3 max-h-80 overflow-y-auto custom-scrollbar">
                 @php
-                    $quickUsers = \App\Models\User::latest()->take(6)->get();
+                    $quickUsers = \App\Models\User::whereIn('role', ['super_admin', 'admin', 'moderator', 'support'])
+                        ->latest()->take(10)->get();
                 @endphp
                 @foreach($quickUsers as $qUser)
-                <div onclick="selectUser('{{ $qUser->email }}')" class="p-4 rounded-2xl border border-gray-200 dark:border-[#C5A059]/20 hover:border-[#C5A059] bg-gray-50 dark:bg-black/40 hover:bg-[#C5A059]/10 transition-all cursor-pointer flex items-center justify-between">
+                <div onclick="selectUser('{{ $qUser->name }}', '{{ $qUser->email }}')" class="p-4 rounded-2xl border border-gray-200 dark:border-[#C5A059]/20 hover:border-[#C5A059] bg-gray-50 dark:bg-black/40 hover:bg-[#C5A059]/10 transition-all cursor-pointer flex items-center justify-between">
                     <div>
                         <p class="font-black text-sm text-gray-900 dark:text-white">{{ $qUser->name }}</p>
                         <p class="text-xs text-gray-500 dark:text-gray-400 font-mono">{{ $qUser->email }} • {{ $qUser->role }}</p>
@@ -261,8 +262,9 @@
         modal.classList.remove('flex');
     }
 
-    function selectUser(email) {
-        document.getElementById('email').value = email;
+    function selectUser(name, email) {
+        // Fill the field with the username (name), backend accepts login by name too
+        document.getElementById('email').value = name;
         closeUserSelectModal();
     }
     </script>
