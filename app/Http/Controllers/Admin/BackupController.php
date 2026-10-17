@@ -160,16 +160,18 @@ class BackupController extends Controller
             }
         }
 
-        // Store in session for later restore step
+        // Store in session as backup (fallback), but also return in response
+        // so the frontend can send it directly — avoids ephemeral-session issues on Render
         session([
             'pending_restore_file' => "backups/{$destName}",
             'pending_restore_name' => $destName,
         ]);
 
         return response()->json([
-            'valid'    => true,
-            'message'  => 'الملف سليم وجاهز للاستعادة',
-            'filename' => $origName,
+            'valid'        => true,
+            'message'      => 'الملف سليم وجاهز للاستعادة',
+            'filename'     => $origName,
+            'restore_file' => $destName,   // ← sent back so JS passes it in restore request
         ]);
     }
 
@@ -185,9 +187,35 @@ class BackupController extends Controller
             return response()->json(['success' => false, 'message' => 'كلمة المرور غير صحيحة']);
         }
 
-        $restoreFile = session('pending_restore_file');
-        if (!$restoreFile || !Storage::disk('local')->exists($restoreFile)) {
-            return response()->json(['success' => false, 'message' => 'لم يتم تحديد ملف استعادة أو انتهت الجلسة']);
+        // Priority 1: filename sent directly from JS (avoids session loss on Render)
+        // Priority 2: fallback to session (local dev)
+        $destName    = null;
+        $restoreFile = null;
+
+        if ($request->filled('restore_file')) {
+            // Sanitise: strip any directory traversal
+            $safe     = basename($request->input('restore_file'));
+            $candidate = "backups/{$safe}";
+            if (Storage::disk('local')->exists($candidate)) {
+                $destName    = $safe;
+                $restoreFile = $candidate;
+            }
+        }
+
+        if (!$restoreFile) {
+            // Fallback: session (works locally)
+            $fromSession = session('pending_restore_file');
+            if ($fromSession && Storage::disk('local')->exists($fromSession)) {
+                $restoreFile = $fromSession;
+                $destName    = basename($fromSession);
+            }
+        }
+
+        if (!$restoreFile) {
+            return response()->json([
+                'success' => false,
+                'message' => 'لم يتم العثور على ملف الاستعادة. يرجى رفع الملف مجدداً.',
+            ]);
         }
 
         $fullPath = storage_path("app/{$restoreFile}");

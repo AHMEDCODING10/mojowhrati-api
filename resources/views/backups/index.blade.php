@@ -308,6 +308,7 @@ function backupManager() {
         showPasswordModal:   false,
         showRestoreSuccess:  false,
         selectedFileName:    '',
+        restoreFileKey:      '',   // server-side filename returned after validate
         preBackupDone:       false,
         preBackupSavedName:  '',
         adminPassword:       '',
@@ -357,7 +358,8 @@ function backupManager() {
             .then(r => r.json())
             .then(data => {
                 if (data.valid) {
-                    this.preBackupDone = false;
+                    this.preBackupDone   = false;
+                    this.restoreFileKey  = data.restore_file || '';  // ← store server filename
                     this.showRestoreConfirm = true;
                     this.$nextTick(() => { if (typeof lucide !== 'undefined') lucide.createIcons(); });
                 } else {
@@ -423,7 +425,10 @@ function backupManager() {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 },
-                body: JSON.stringify({ password: this.adminPassword }),
+                body: JSON.stringify({
+                    password:     this.adminPassword,
+                    restore_file: this.restoreFileKey,  // ← send filename directly
+                }),
             })
             .then(r => r.json())
             .then(data => {
